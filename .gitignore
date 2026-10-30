@@ -1,0 +1,37 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Logs
+*.log
+logs/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.idea/
+.vscode/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Database files and backups
+*.sql
+*.sqlite
+*.db
+
+# PHP sessions
+sessions/
+
+# Cache
+cache/
+tmp/
