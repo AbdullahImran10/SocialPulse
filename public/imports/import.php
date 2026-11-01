@@ -24,7 +24,6 @@ if ($userRole === 'Admin') {
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
-
 } else {
 
     $sql = "SELECT b.brand_id, b.brand_name
@@ -63,8 +62,7 @@ if (empty($_SESSION['csrf_token'])) {
         <input
             type="hidden"
             name="csrf_token"
-            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"
-        >
+            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
         <label>Select Brand:</label>
 
@@ -100,8 +98,7 @@ if (empty($_SESSION['csrf_token'])) {
             type="file"
             name="csv_file"
             accept=".csv,text/csv"
-            required
-        >
+            required>
 
         <br><br>
 
@@ -110,59 +107,62 @@ if (empty($_SESSION['csrf_token'])) {
     </form>
 
     <script>
+        const brandSelect = document.getElementById('brand_id');
+        const accountSelect = document.getElementById('account_id');
 
-    const brandSelect = document.getElementById('brand_id');
-    const accountSelect = document.getElementById('account_id');
+        brandSelect.addEventListener('change', async function() {
 
-    brandSelect.addEventListener('change', async function () {
+            accountSelect.innerHTML = '<option value="">Loading...</option>';
 
-        accountSelect.innerHTML = '<option value="">Loading...</option>';
+            accountSelect.disabled = accounts.length === 0;
 
-        accountSelect.disabled = true;
-
-        if (!this.value) {
-            accountSelect.innerHTML = '<option value="">Select Account</option>';
-            return;
-        }
-
-        try {
-
-            const response = await fetch(
-                'get_accounts.php?brand_id=' + encodeURIComponent(this.value)
-            );
-
-            if (!response.ok) {
-                throw new Error('Unable to load accounts');
+            if (accounts.length === 0) {
+                accountSelect.innerHTML =
+                    '<option value="">No accounts available</option>';
             }
 
-            const accounts = await response.json();
+            if (!this.value) {
+                accountSelect.innerHTML = '<option value="">Select Account</option>';
+                return;
+            }
 
-            accountSelect.innerHTML = '<option value="">Select Account</option>';
+            try {
 
-            accounts.forEach(account => {
+                const response = await fetch(
+                    'get_accounts.php?brand_id=' + encodeURIComponent(this.value)
+                );
 
-                const option = document.createElement('option');
+                if (!response.ok) {
+                    throw new Error('Unable to load accounts');
+                }
 
-                option.value = account.account_id;
+                const accounts = await response.json();
 
-                option.textContent =
-                    account.platform + ' - ' + account.account_name;
+                accountSelect.innerHTML = '<option value="">Select Account</option>';
 
-                accountSelect.appendChild(option);
+                accounts.forEach(account => {
 
-            });
+                    const option = document.createElement('option');
 
-            accountSelect.disabled = false;
+                    option.value = account.account_id;
 
-        } catch (error) {
+                    option.textContent =
+                        account.platform + ' - ' + account.account_name;
 
-            accountSelect.innerHTML =
-                '<option value="">Unable to load accounts</option>';
+                    accountSelect.appendChild(option);
 
-        }
+                });
 
-    });
+                accountSelect.disabled = false;
 
+            } catch (error) {
+
+                accountSelect.innerHTML =
+                    '<option value="">Unable to load accounts</option>';
+
+            }
+
+        });
     </script>
 
 </body>
