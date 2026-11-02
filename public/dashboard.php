@@ -190,279 +190,279 @@ function escape($value)
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>SocialPulse Dashboard</title>
 
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
 </head>
 
 <body>
 
-    <h1>SocialPulse Dashboard</h1>
+<div class="dashboard-container">
 
-    <p>
-        Welcome,
-        <?= escape($_SESSION['name'] ?? 'User') ?>!
-    </p>
+    <!-- SIDEBAR -->
 
-    <p>
-        Your Role:
-        <?= escape($role) ?>
-    </p>
+    <aside class="sidebar">
 
-    <hr>
+        <div class="logo">SocialPulse.</div>
 
-    <!-- ANALYTICS OVERVIEW -->
+        <h4>Menu</h4>
 
-    <h2>Analytics Overview</h2>
+        <a href="dashboard.php" class="active">
+            <span>Dashboard</span>
+        </a>
 
-    <table border="1" cellpadding="15">
+        <?php if (hasRole('Admin')): ?>
 
-        <tr>
-            <th>Total Posts</th>
-            <th>Total Views</th>
-            <th>Total Likes</th>
-        </tr>
+            <a href="admin/index.php">
+                <span>Admin Panel</span>
+            </a>
 
-        <tr>
+        <?php elseif (hasRole('Social Media Manager')): ?>
 
-            <td>
-                <?= number_format((int)$analytics['total_posts']) ?>
-            </td>
+            <a href="manager/index.php">
+                <span>Manager Panel</span>
+            </a>
 
-            <td>
-                <?= number_format((int)$analytics['total_views']) ?>
-            </td>
+        <?php elseif (hasRole('Client')): ?>
 
-            <td>
-                <?= number_format((int)$analytics['total_likes']) ?>
-            </td>
+            <a href="client/index.php">
+                <span>Client Panel</span>
+            </a>
 
-        </tr>
+        <?php endif; ?>
 
-        <tr>
-            <th>Total Comments</th>
-            <th>Total Shares</th>
-            <th>Total Reach</th>
-        </tr>
+        <?php if (hasRole('Admin') || hasRole('Social Media Manager')): ?>
 
-        <tr>
+            <h4>Management</h4>
 
-            <td>
-                <?= number_format((int)$analytics['total_comments']) ?>
-            </td>
+            <a href="posts.php"><span>Manage Posts</span></a>
 
-            <td>
-                <?= number_format((int)$analytics['total_shares']) ?>
-            </td>
+            <a href="metrics.php"><span>Manage Metrics</span></a>
 
-            <td>
-                <?= number_format((int)$analytics['total_reach']) ?>
-            </td>
+            <a href="imports/import.php"><span>Import CSV</span></a>
 
-        </tr>
+        <?php endif; ?>
 
-    </table>
+        <h4>Account</h4>
 
-    <!-- ENGAGEMENT -->
+        <a href="logout.php">
+            <span>Logout</span>
+        </a>
 
-    <h2>Engagement Overview</h2>
+    </aside>
 
-    <p>
-        Total Engagement:
-        <?= number_format($totalEngagement) ?>
-    </p>
 
-    <hr>
+    <!-- MAIN CONTENT -->
 
-    <!-- PERFORMANCE BAR CHART -->
+    <main class="main-content">
 
-    <h2>Social Media Performance</h2>
+        <!-- HEADER -->
 
-    <div style="width: 100%; max-width: 800px;">
+        <header class="topbar">
 
-        <canvas id="performanceChart"></canvas>
+            <h1>Dashboard Overview</h1>
 
-    </div>
+            <div class="user-info">
 
-    <hr>
+                Welcome,
+                <?= escape($_SESSION['name'] ?? 'User') ?>
 
-    <!-- PLATFORM DOUGHNUT CHART -->
+                |
+                <?= escape($role) ?>
 
-    <h2>Instagram vs Facebook Performance</h2>
+            </div>
 
-    <div style="width: 100%; max-width: 500px;">
+        </header>
 
-        <canvas id="platformChart"></canvas>
 
-    </div>
+        <!-- ANALYTICS CARDS -->
 
-    <hr>
+        <section class="analytics-grid">
 
-    <!-- NAVIGATION -->
+            <div class="analytics-card">
+                <p>Total Posts</p>
+                <h2><?= number_format((int)$analytics['total_posts']) ?></h2>
+            </div>
 
-    <h2>Navigation</h2>
+            <div class="analytics-card">
+                <p>Total Views</p>
+                <h2><?= number_format((int)$analytics['total_views']) ?></h2>
+            </div>
 
-    <?php if (hasRole('Admin')): ?>
+            <div class="analytics-card">
+                <p>Total Reach</p>
+                <h2><?= number_format((int)$analytics['total_reach']) ?></h2>
+            </div>
 
-        <p>
-            <a href="admin/index.php">Admin Panel</a>
-        </p>
+            <div class="analytics-card">
+                <p>Total Engagement</p>
+                <h2><?= number_format($totalEngagement) ?></h2>
+            </div>
 
-    <?php elseif (hasRole('Social Media Manager')): ?>
+        </section>
 
-        <p>
-            <a href="manager/index.php">Manager Panel</a>
-        </p>
 
-    <?php elseif (hasRole('Client')): ?>
+        <!-- CHARTS -->
 
-        <p>
-            <a href="client/index.php">Client Panel</a>
-        </p>
+        <section class="charts-grid">
 
-    <?php endif; ?>
+            <div class="chart-card">
 
-    <?php if (hasRole('Admin') || hasRole('Social Media Manager')): ?>
+                <h3>Social Media Performance</h3>
 
-        <p>
-            <a href="posts.php">Manage Posts</a>
-        </p>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
 
-        <p>
-            <a href="metrics.php">Manage Metrics</a>
-        </p>
+            </div>
 
-        <p>
-            <a href="imports/import.php">Import CSV</a>
-        </p>
+            <div class="chart-card">
 
-    <?php endif; ?>
+                <h3>Instagram vs Facebook</h3>
 
-    <p>
-        <a href="logout.php">Logout</a>
-    </p>
+                <div class="chart-container">
+                    <canvas id="platformChart"></canvas>
+                </div>
 
-    <!-- CHART.JS -->
+            </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        </section>
 
-    <script>
 
-        // BAR CHART
+        <!-- ADDITIONAL METRICS -->
 
-        const performanceCtx =
-            document.getElementById('performanceChart');
+        <section class="analytics-grid">
 
-        new Chart(performanceCtx, {
+            <div class="analytics-card">
+                <p>Total Likes</p>
+                <h2><?= number_format((int)$analytics['total_likes']) ?></h2>
+            </div>
 
-            type: 'bar',
+            <div class="analytics-card">
+                <p>Total Comments</p>
+                <h2><?= number_format((int)$analytics['total_comments']) ?></h2>
+            </div>
 
-            data: {
+            <div class="analytics-card">
+                <p>Total Shares</p>
+                <h2><?= number_format((int)$analytics['total_shares']) ?></h2>
+            </div>
 
-                labels: [
-                    'Views',
-                    'Likes',
-                    'Comments',
-                    'Shares'
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- CHART.JS -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    // Performance Chart
+
+    new Chart(document.getElementById('performanceChart'), {
+
+        type: 'bar',
+
+        data: {
+
+            labels: ['Views', 'Likes', 'Comments', 'Shares'],
+
+            datasets: [{
+
+                label: 'Performance',
+
+                data: [
+                    <?= (int)$analytics['total_views'] ?>,
+                    <?= (int)$analytics['total_likes'] ?>,
+                    <?= (int)$analytics['total_comments'] ?>,
+                    <?= (int)$analytics['total_shares'] ?>
                 ],
 
-                datasets: [{
+                backgroundColor: [
+                    '#6366f1',
+                    '#ec4899',
+                    '#14b8a6',
+                    '#f59e0b'
+                ],
 
-                    label: 'Social Media Performance',
+                borderRadius: 6
 
-                    data: [
-                        <?= (int)$analytics['total_views'] ?>,
-                        <?= (int)$analytics['total_likes'] ?>,
-                        <?= (int)$analytics['total_comments'] ?>,
-                        <?= (int)$analytics['total_shares'] ?>
-                    ],
+            }]
 
-                    backgroundColor: [
-                        '#6366f1',
-                        '#ec4899',
-                        '#14b8a6',
-                        '#f59e0b'
-                    ]
+        },
 
-                }]
+        options: {
 
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    display: false
+                }
             },
 
-            options: {
-
-                responsive: true,
-
-                plugins: {
-
-                    legend: {
-                        display: false
-                    }
-
-                },
-
-                scales: {
-
-                    y: {
-                        beginAtZero: true
-                    }
-
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
-
             }
 
-        });
+        }
+
+    });
 
 
-        // DOUGHNUT CHART
+    // Platform Chart
 
-        const platformCtx =
-            document.getElementById('platformChart');
+    new Chart(document.getElementById('platformChart'), {
 
-        new Chart(platformCtx, {
+        type: 'doughnut',
 
-            type: 'doughnut',
+        data: {
 
-            data: {
+            labels: <?= json_encode($platformLabels) ?>,
 
-                labels: <?= json_encode($platformLabels) ?>,
+            datasets: [{
 
-                datasets: [{
+                data: <?= json_encode($platformViews) ?>,
 
-                    label: 'Total Views',
+                backgroundColor: [
+                    '#e1306c',
+                    '#1877f2'
+                ],
 
-                    data: <?= json_encode($platformViews) ?>,
+                borderWidth: 0
 
-                    backgroundColor: [
-                        '#e1306c',
-                        '#1877f2'
-                    ]
+            }]
 
-                }]
+        },
 
-            },
+        options: {
 
-            options: {
+            responsive: true,
 
-                responsive: true,
+            maintainAspectRatio: false,
 
-                plugins: {
-
-                    legend: {
-                        position: 'bottom'
-                    }
-
+            plugins: {
+                legend: {
+                    position: 'bottom'
                 }
-
             }
 
-        });
+        }
 
-    </script>
+    });
+
+</script>
 
 </body>
-
 </html>
