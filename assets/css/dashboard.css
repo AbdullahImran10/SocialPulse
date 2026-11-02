@@ -1,3 +1,6 @@
+/* ==========================================
+   GLOBAL STYLES
+========================================== */
 
 * {
     margin: 0;
@@ -6,223 +9,358 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background: #080d18;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #070b14;
     color: #e2e8f0;
 }
 
-/* Main Layout */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button,
+input {
+    font-family: inherit;
+}
+
+
+/* ==========================================
+   DASHBOARD LAYOUT
+========================================== */
 
 .dashboard-container {
     display: flex;
     min-height: 100vh;
 }
 
-/* Sidebar */
+
+/* ==========================================
+   SIDEBAR
+========================================== */
 
 .sidebar {
     width: 250px;
-    background: #0d1525;
-    padding: 25px 20px;
-    position: fixed;
-    height: 100vh;
+    min-width: 250px;
+    background: #0b1220;
     border-right: 1px solid #1e293b;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
 }
 
-.logo {
-    font-size: 24px;
-    font-weight: bold;
+.sidebar h2 {
     color: #00e5ff;
-    margin-bottom: 40px;
+    font-size: 25px;
+    margin-bottom: 45px;
+    text-align: center;
+    letter-spacing: 1px;
 }
 
-.sidebar h4 {
-    color: #64748b;
-    font-size: 12px;
-    margin-bottom: 15px;
-    text-transform: uppercase;
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.sidebar a {
+.sidebar nav a {
     display: block;
-    text-decoration: none;
+    padding: 13px 16px;
     color: #94a3b8;
-    padding: 13px 15px;
-    margin-bottom: 8px;
     border-radius: 8px;
-    transition: 0.3s;
+    font-size: 14px;
+    transition: 0.3s ease;
 }
 
-.sidebar a:hover,
-.sidebar a.active {
-    background: #17263d;
+.sidebar nav a:hover {
+    background: #172337;
     color: #00e5ff;
+    transform: translateX(4px);
 }
 
-/* Main Content */
+.sidebar nav a.active {
+    background: #123044;
+    color: #00e5ff;
+    border-left: 3px solid #00e5ff;
+}
+
+
+/* ==========================================
+   MAIN CONTENT
+========================================== */
 
 .main-content {
-    margin-left: 250px;
+    flex: 1;
+    min-width: 0;
     padding: 30px;
-    width: calc(100% - 250px);
+    overflow-x: hidden;
 }
 
-/* Header */
+
+/* ==========================================
+   TOP HEADER
+========================================== */
 
 .topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 20px;
     margin-bottom: 35px;
 }
 
 .topbar h1 {
-    font-size: 27px;
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: #f8fafc;
+}
+
+.topbar p {
+    color: #94a3b8;
+    font-size: 14px;
 }
 
 .user-info {
-    color: #94a3b8;
+    background: #0f1c2e;
+    border: 1px solid #1e3a50;
+    padding: 10px 18px;
+    border-radius: 8px;
+    color: #00e5ff;
+    font-size: 13px;
 }
 
-/* Analytics Cards */
 
-.analytics-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    margin: 25px 0;
-}
+/* ==========================================
+   DATE FILTER
+========================================== */
 
-.analytics-card {
-    background: #111c30;
+.filter-section {
+    background: #0b1220;
     border: 1px solid #1e293b;
+    padding: 20px;
     border-radius: 12px;
-    padding: 22px;
+    margin-bottom: 30px;
+}
+
+.date-filter {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 18px;
+}
+
+.date-filter div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.date-filter label {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.date-filter input {
+    background: #070b14;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+    border-radius: 7px;
+    padding: 11px 12px;
+    outline: none;
+}
+
+.date-filter input:focus {
+    border-color: #00e5ff;
+    box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.1);
+}
+
+.date-filter button {
+    background: #00c8e0;
+    color: #07111e;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 7px;
+    font-weight: bold;
+    cursor: pointer;
     transition: 0.3s;
 }
 
-.analytics-card:hover {
-    transform: translateY(-4px);
-    border-color: #00e5ff;
+.date-filter button:hover {
+    background: #00e5ff;
+    transform: translateY(-2px);
 }
 
-.analytics-card p {
+.date-filter a {
+    color: #00e5ff;
+    padding: 12px 10px;
+    font-size: 14px;
+}
+
+.date-filter a:hover {
+    text-decoration: underline;
+}
+
+
+/* ==========================================
+   ANALYTICS CARDS
+========================================== */
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 35px;
+}
+
+.analytics-card {
+    background: #0b1220;
+    border: 1px solid #1e293b;
+    padding: 24px;
+    border-radius: 12px;
+    transition: 0.3s ease;
+    min-width: 0;
+}
+
+.analytics-card:hover {
+    border-color: #00e5ff;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 229, 255, 0.07);
+}
+
+.analytics-card h3 {
     color: #94a3b8;
     font-size: 14px;
+    font-weight: normal;
     margin-bottom: 15px;
 }
 
 .analytics-card h2 {
-    font-size: 27px;
     color: #00e5ff;
+    font-size: 28px;
+    font-weight: bold;
+    overflow-wrap: anywhere;
 }
 
-/* Charts */
 
-.charts-grid {
+/* ==========================================
+   CHARTS SECTION
+========================================== */
+
+.charts-section {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 20px;
-    margin-top: 30px;
 }
 
 .chart-card {
-    background: #111c30;
+    background: #0b1220;
     border: 1px solid #1e293b;
-    border-radius: 12px;
     padding: 25px;
+    border-radius: 12px;
     min-width: 0;
 }
 
 .chart-card h3 {
+    color: #f1f5f9;
+    font-size: 17px;
     margin-bottom: 25px;
-    font-size: 18px;
 }
 
 .chart-container {
     position: relative;
-    height: 300px;
+    width: 100%;
+    height: 320px;
 }
 
-/* Engagement */
 
-.engagement-card {
-    background: #111c30;
-    border: 1px solid #1e293b;
-    padding: 25px;
-    border-radius: 12px;
-    margin-top: 25px;
-}
-
-.engagement-card h3 {
-    color: #94a3b8;
-    margin-bottom: 12px;
-}
-
-.engagement-card h2 {
-    color: #00e5ff;
-    font-size: 28px;
-}
-
-/* Responsive Design */
+/* ==========================================
+   RESPONSIVE DESIGN
+========================================== */
 
 @media (max-width: 1100px) {
+
     .analytics-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .charts-grid {
+    .charts-section {
         grid-template-columns: 1fr;
     }
+
 }
 
 @media (max-width: 768px) {
+
+    .dashboard-container {
+        flex-direction: column;
+    }
+
     .sidebar {
-        width: 190px;
+        width: 100%;
+        min-width: 0;
+        padding: 18px;
+        border-right: none;
+        border-bottom: 1px solid #1e293b;
+    }
+
+    .sidebar h2 {
+        margin-bottom: 18px;
+    }
+
+    .sidebar nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .sidebar nav a {
+        padding: 10px 12px;
+        font-size: 13px;
     }
 
     .main-content {
-        margin-left: 190px;
-        width: calc(100% - 190px);
         padding: 20px;
     }
 
     .topbar {
         align-items: flex-start;
-        flex-direction: column;
-        gap: 15px;
     }
+
+    .topbar h1 {
+        font-size: 23px;
+    }
+
 }
 
-@media (max-width: 550px) {
-    .sidebar {
-        width: 65px;
-        padding: 20px 8px;
-    }
-
-    .sidebar .logo {
-        font-size: 12px;
-        overflow: hidden;
-    }
-
-    .sidebar h4,
-    .sidebar a span {
-        display: none;
-    }
-
-    .sidebar a {
-        text-align: center;
-        padding: 12px 5px;
-        font-size: 12px;
-    }
-
-    .main-content {
-        margin-left: 65px;
-        width: calc(100% - 65px);
-        padding: 15px;
-    }
+@media (max-width: 500px) {
 
     .analytics-grid {
         grid-template-columns: 1fr;
     }
+
+    .date-filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .date-filter div {
+        width: 100%;
+    }
+
+    .date-filter input {
+        width: 100%;
+    }
+
+    .topbar {
+        flex-direction: column;
+    }
+
+    .chart-container {
+        height: 260px;
+    }
+
+    .chart-card {
+        padding: 18px;
+    }
+
 }

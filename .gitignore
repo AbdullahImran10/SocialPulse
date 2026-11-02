@@ -35,3 +35,5 @@ sessions/
 # Cache
 cache/
 tmp/
+
+*.csv
