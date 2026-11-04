@@ -1,0 +1,364 @@
+/* ==========================================
+   POSTS SUMMARY
+========================================== */
+
+.posts-summary {
+    margin-bottom: 25px;
+}
+
+.posts-summary .analytics-card {
+    max-width: 250px;
+}
+
+
+/* ==========================================
+   POSTS TOOLBAR
+========================================== */
+
+.posts-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.posts-filter-form {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.posts-filter-form input,
+.posts-filter-form select {
+    background: #0b1220;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+    border-radius: 7px;
+    padding: 12px 14px;
+    outline: none;
+}
+
+.posts-filter-form input {
+    width: 260px;
+}
+
+.posts-filter-form select {
+    min-width: 160px;
+}
+
+.posts-filter-form input:focus,
+.posts-filter-form select:focus {
+    border-color: #00e5ff;
+}
+
+.posts-filter-form button {
+    background: #00c8e0;
+    color: #07111e;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 7px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.posts-filter-form button:hover {
+    background: #00e5ff;
+}
+
+.posts-filter-form a {
+    color: #00e5ff;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.posts-filter-form a:hover {
+    text-decoration: underline;
+}
+
+
+/* ==========================================
+   ADD POST BUTTON
+========================================== */
+
+.add-post-btn {
+    display: inline-block;
+    background: #00e5ff;
+    color: #07111e;
+    padding: 12px 18px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.add-post-btn:hover {
+    background: #00c8e0;
+    transform: translateY(-2px);
+}
+
+
+/* ==========================================
+   POSTS TABLE CONTAINER
+========================================== */
+
+.posts-table-container {
+    background: #0b1220;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 22px;
+    border-bottom: 1px solid #1e293b;
+}
+
+.table-header h3 {
+    color: #f1f5f9;
+    font-size: 17px;
+}
+
+.table-header span {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+
+/* ==========================================
+   TABLE
+========================================== */
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.posts-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1050px;
+}
+
+.posts-table th {
+    background: #111c2e;
+    color: #00e5ff;
+    text-align: left;
+    padding: 16px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.posts-table td {
+    padding: 16px;
+    border-bottom: 1px solid #1e293b;
+    color: #cbd5e1;
+    font-size: 13px;
+}
+
+.posts-table tbody tr {
+    transition: 0.2s;
+}
+
+.posts-table tbody tr:hover {
+    background: #111c2e;
+}
+
+.posts-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.caption-cell {
+    max-width: 220px;
+    min-width: 150px;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   PLATFORM BADGES
+========================================== */
+
+.platform-badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.platform-badge.instagram {
+    background: rgba(225, 48, 108, 0.15);
+    color: #fb7185;
+}
+
+.platform-badge.facebook {
+    background: rgba(24, 119, 242, 0.15);
+    color: #60a5fa;
+}
+
+
+/* ==========================================
+   POST LINK
+========================================== */
+
+.post-link {
+    color: #00e5ff;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.post-link:hover {
+    text-decoration: underline;
+}
+
+
+/* ==========================================
+   EMPTY STATE
+========================================== */
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state h3 {
+    color: #f1f5f9;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+
+/* ==========================================
+   PAGINATION
+========================================== */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 22px;
+    border-top: 1px solid #1e293b;
+}
+
+.pagination a {
+    background: #123044;
+    color: #00e5ff;
+    padding: 9px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.pagination a:hover {
+    background: #00e5ff;
+    color: #07111e;
+}
+
+.pagination span {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+
+/* ==========================================
+   RESPONSIVE DESIGN
+========================================== */
+
+@media (max-width: 768px) {
+
+    .posts-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .posts-filter-form {
+        width: 100%;
+    }
+
+    .posts-filter-form input {
+        width: 100%;
+        flex: 1;
+    }
+
+    .posts-filter-form select {
+        width: 100%;
+    }
+
+    .add-post-btn {
+        text-align: center;
+    }
+
+}
+
+@media (max-width: 500px) {
+
+    .posts-filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .posts-filter-form input,
+    .posts-filter-form select,
+    .posts-filter-form button {
+        width: 100%;
+    }
+
+    .pagination {
+        gap: 10px;
+    }
+
+}
+.success-message {
+    background: rgba(34, 197, 94, 0.12);
+    color: #4ade80;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.edit-btn {
+    display: inline-block;
+    background: #123044;
+    color: #00e5ff;
+    padding: 7px 13px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.edit-btn:hover {
+    background: #00e5ff;
+    color: #07111e;
+}
+.delete-btn {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid #ef4444;
+    padding: 7px 13px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background: #ef4444;
+    color: white;
+}

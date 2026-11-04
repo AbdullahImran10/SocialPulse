@@ -1,230 +1,144 @@
 <?php
 
-require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 requireLogin();
 
-$userId = (int) getUserId();
-$userRole = getUserRole();
-
-if (!in_array($userRole, ['Admin', 'Social Media Manager'], true)) {
+// Only Admin and Social Media Manager can access Posts Management
+if (!hasRole('Admin') && !hasRole('Social Media Manager')) {
     http_response_code(403);
     exit('Access denied.');
 }
 
-$message = '';
-$error = '';
+$userId = getUserId();
+$userRole = getUserRole();
 
+// Search and filter inputs
+$search = trim($_GET['search'] ?? '');
+$platform = $_GET['platform'] ?? '';
 
-// Generate CSRF token
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+// Validate platform filter
+if (!in_array($platform, ['', 'Instagram', 'Facebook'], true)) {
+    $platform = '';
 }
 
+// Pagination
+$limit = 10;
+$page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT);
 
-// =====================================
-// HANDLE FORM SUBMISSION
-// =====================================
+if (!$page || $page < 1) {
+    $page = 1;
+}
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$offset = ($page - 1) * $limit;
 
-    if (
-        !isset($_POST['csrf_token']) ||
-        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
-        $error = 'Invalid request. Please try again.';
-    } else {
+// Build query conditions
+$where = [];
+$params = [];
 
-        $accountId = (int) ($_POST['account_id'] ?? 0);
-        $caption = trim($_POST['caption'] ?? '');
-        $postType = $_POST['post_type'] ?? '';
-        $publishedAt = trim($_POST['published_at'] ?? '');
-        $postUrl = trim($_POST['post_url'] ?? '');
+// Search by caption
+if ($search !== '') {
+    $where[] = "p.caption LIKE ?";
+    $params[] = '%' . $search . '%';
+}
 
-        $allowedTypes = ['Image', 'Video', 'Reel', 'Story', 'Carousel', 'Text'];
+// Filter by platform
+if ($platform !== '') {
+    $where[] = "sa.platform = ?";
+    $params[] = $platform;
+}
 
-        if ($accountId <= 0 || $postType === '') {
+// Managers can only access assigned brands
+if ($userRole === 'Social Media Manager') {
+    $where[] = "EXISTS (
+        SELECT 1
+        FROM brand_members bm
+        WHERE bm.brand_id = b.brand_id
+        AND bm.user_id = ?
+    )";
 
-            $error = 'Please select an account and post type.';
+    $params[] = $userId;
+}
 
-        } elseif (!in_array($postType, $allowedTypes, true)) {
+$whereSQL = '';
 
-            $error = 'Invalid post type.';
+if (!empty($where)) {
+    $whereSQL = ' WHERE ' . implode(' AND ', $where);
+}
 
-        } elseif (
-            $publishedAt !== '' &&
-            !DateTime::createFromFormat('Y-m-d\TH:i', $publishedAt)
-        ) {
+try {
 
-            $error = 'Invalid publishing date.';
+    // Get total number of matching posts
+    $sql = "SELECT COUNT(*)
+            FROM posts p
+            INNER JOIN social_accounts sa
+                ON p.account_id = sa.account_id
+            INNER JOIN brands b
+                ON sa.brand_id = b.brand_id
+            $whereSQL";
 
-        } elseif (
-            $postUrl !== '' &&
-            !filter_var($postUrl, FILTER_VALIDATE_URL)
-        ) {
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
 
-            $error = 'Please enter a valid post URL.';
+    $totalPosts = (int)$stmt->fetchColumn();
 
-        } else {
+    $totalPages = max(1, (int)ceil($totalPosts / $limit));
 
-            // Check account and brand authorization
-            $sql = "
-                SELECT sa.account_id
-                FROM social_accounts sa
-                JOIN brands b ON sa.brand_id = b.brand_id
-                WHERE sa.account_id = ?
-            ";
-
-            $params = [$accountId];
-
-            if ($userRole === 'Social Media Manager') {
-
-                $sql .= "
-                    AND EXISTS (
-                        SELECT 1
-                        FROM brand_members bm
-                        WHERE bm.brand_id = b.brand_id
-                          AND bm.user_id = ?
-                    )
-                ";
-
-                $params[] = $userId;
-            }
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($params);
-
-            if (!$stmt->fetch()) {
-
-                $error = 'You are not authorized to add posts to this account.';
-
-            } else {
-
-                $stmt = $pdo->prepare(
-                    "INSERT INTO posts
-                    (account_id, caption, post_type, published_at, post_url)
-                    VALUES (?, ?, ?, ?, ?)"
-                );
-
-                $stmt->execute([
-                    $accountId,
-                    $caption,
-                    $postType,
-                    $publishedAt !== ''
-                        ? str_replace('T', ' ', $publishedAt) . ':00'
-                        : null,
-                    $postUrl !== '' ? $postUrl : null
-                ]);
-
-                $message = 'Post added successfully!';
-
-            }
-
-        }
-
+    // Prevent requesting a page beyond the available pages
+    if ($page > $totalPages) {
+        $page = $totalPages;
+        $offset = ($page - 1) * $limit;
     }
 
+    // Fetch posts
+    $sql = "SELECT
+                p.post_id,
+                p.caption,
+                p.post_type,
+                p.published_at,
+                p.post_url,
+                sa.platform,
+                sa.account_name,
+                b.brand_name,
+                c.client_name
+            FROM posts p
+            INNER JOIN social_accounts sa
+                ON p.account_id = sa.account_id
+            INNER JOIN brands b
+                ON sa.brand_id = b.brand_id
+            INNER JOIN clients c
+                ON b.client_id = c.client_id
+            $whereSQL
+            ORDER BY p.published_at DESC
+            LIMIT $limit OFFSET $offset";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+
+    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+
+    error_log($e->getMessage());
+
+    http_response_code(500);
+    exit('Unable to load posts. Please try again.');
 }
 
-
-// =====================================
-// FETCH AUTHORIZED SOCIAL ACCOUNTS
-// =====================================
-
-$sql = "
-    SELECT
-        sa.account_id,
-        sa.platform,
-        sa.account_name,
-        b.brand_name,
-        c.client_name
-
-    FROM social_accounts sa
-
-    JOIN brands b
-        ON sa.brand_id = b.brand_id
-
-    JOIN clients c
-        ON b.client_id = c.client_id
-";
-
-$params = [];
-
-if ($userRole === 'Social Media Manager') {
-
-    $sql .= "
-        WHERE EXISTS (
-            SELECT 1
-            FROM brand_members bm
-            WHERE bm.brand_id = b.brand_id
-              AND bm.user_id = ?
-        )
-    ";
-
-    $params[] = $userId;
-
+// Escape output
+function escape($value)
+{
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
-$sql .= " ORDER BY b.brand_name, sa.platform";
+// Preserve filters when changing pages
+function pageUrl($pageNumber)
+{
+    $params = $_GET;
+    $params['page'] = $pageNumber;
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-
-$accounts = $stmt->fetchAll();
-
-
-// =====================================
-// FETCH POSTS
-// =====================================
-
-$sql = "
-    SELECT
-        p.post_id,
-        p.caption,
-        p.post_type,
-        p.published_at,
-        p.post_url,
-        sa.platform,
-        sa.account_name,
-        b.brand_name,
-        c.client_name
-
-    FROM posts p
-
-    JOIN social_accounts sa
-        ON p.account_id = sa.account_id
-
-    JOIN brands b
-        ON sa.brand_id = b.brand_id
-
-    JOIN clients c
-        ON b.client_id = c.client_id
-";
-
-$params = [];
-
-if ($userRole === 'Social Media Manager') {
-
-    $sql .= "
-        WHERE EXISTS (
-            SELECT 1
-            FROM brand_members bm
-            WHERE bm.brand_id = b.brand_id
-              AND bm.user_id = ?
-        )
-    ";
-
-    $params[] = $userId;
-
+    return '?' . http_build_query($params);
 }
-
-$sql .= " ORDER BY p.post_id DESC";
-
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-
-$posts = $stmt->fetchAll();
 
 ?>
 
@@ -237,234 +151,376 @@ $posts = $stmt->fetchAll();
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Post Management | SocialPulse</title>
+    <title>Posts Management | SocialPulse</title>
+
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+
+    <link rel="stylesheet" href="../assets/css/posts.css">
 
 </head>
 
 <body>
 
-    <h1>Post Management</h1>
+    <div class="dashboard-container">
 
-    <a href="dashboard.php">Back to Dashboard</a>
+        <!-- Sidebar -->
 
-    <hr>
+        <aside class="sidebar">
 
+            <h2>SocialPulse</h2>
 
-    <!-- MESSAGES -->
+            <nav>
 
-    <?php if ($message !== ''): ?>
+                <a href="dashboard.php">Dashboard</a>
 
-        <p><?= htmlspecialchars($message) ?></p>
+                <?php if ($userRole === 'Admin'): ?>
 
-    <?php endif; ?>
+                    <a href="admin/index.php">Admin Panel</a>
 
+                <?php endif; ?>
 
-    <?php if ($error !== ''): ?>
+                <?php if ($userRole === 'Social Media Manager'): ?>
 
-        <p><?= htmlspecialchars($error) ?></p>
+                    <a href="manager/index.php">Manager Panel</a>
 
-    <?php endif; ?>
+                <?php endif; ?>
 
+                <a href="posts.php" class="active">Posts</a>
 
-    <!-- ADD POST FORM -->
+                <a href="metrics.php">Analytics</a>
 
-    <h2>Add New Post</h2>
+                <a href="logout.php">Logout</a>
 
-    <form method="POST">
+            </nav>
 
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"
-        >
+        </aside>
 
 
-        <label for="account_id">Social Account:</label>
+        <!-- Main Content -->
 
-        <select name="account_id" id="account_id" required>
+        <main class="main-content">
 
-            <option value="">Select Account</option>
+            <!-- Topbar -->
 
-            <?php foreach ($accounts as $account): ?>
+            <header class="topbar">
 
-                <option value="<?= (int) $account['account_id'] ?>">
+                <div>
 
-                    <?= htmlspecialchars($account['client_name']) ?>
-                    -
-                    <?= htmlspecialchars($account['brand_name']) ?>
-                    -
-                    <?= htmlspecialchars($account['platform']) ?>
-                    -
-                    <?= htmlspecialchars($account['account_name']) ?>
+                    <h1>Posts Management</h1>
 
-                </option>
+                    <p>Manage your social media posts.</p>
 
-            <?php endforeach; ?>
+                </div>
 
-        </select>
+                <div class="user-info">
 
-        <br><br>
+                    <span><?= escape($_SESSION['name'] ?? 'User') ?></span>
 
+                    <span><?= escape($userRole) ?></span>
 
-        <label for="caption">Caption:</label>
+                </div>
 
-        <textarea
-            name="caption"
-            id="caption"
-            rows="4"
-            cols="40"
-        ></textarea>
+            </header>
 
-        <br><br>
 
+            <!-- Summary -->
 
-        <label for="post_type">Post Type:</label>
+            <section class="posts-summary">
 
-        <select name="post_type" id="post_type" required>
+                <div class="analytics-card">
 
-            <option value="">Select Type</option>
+                    <h3>Total Posts</h3>
 
-            <option value="Image">Image</option>
+                    <h2><?= number_format($totalPosts) ?></h2>
 
-            <option value="Video">Video</option>
+                </div>
 
-            <option value="Reel">Reel</option>
+            </section>
 
-            <option value="Story">Story</option>
 
-            <option value="Carousel">Carousel</option>
+            <!-- Toolbar -->
 
-            <option value="Text">Text</option>
+            <section class="posts-toolbar">
 
-        </select>
+                <form method="GET" action="posts.php" class="posts-filter-form">
 
-        <br><br>
+                    <input
+                        type="text"
+                        name="search"
+                        placeholder="Search by caption..."
+                        value="<?= escape($search) ?>">
 
+                    <select name="platform">
 
-        <label for="published_at">Publishing Date:</label>
+                        <option value="">All Platforms</option>
 
-        <input
-            type="datetime-local"
-            name="published_at"
-            id="published_at"
-        >
+                        <option
+                            value="Instagram"
+                            <?= $platform === 'Instagram' ? 'selected' : '' ?>>
 
-        <br><br>
+                            Instagram
 
+                        </option>
 
-        <label for="post_url">Post URL:</label>
+                        <option
+                            value="Facebook"
+                            <?= $platform === 'Facebook' ? 'selected' : '' ?>>
 
-        <input
-            type="url"
-            name="post_url"
-            id="post_url"
-        >
+                            Facebook
 
-        <br><br>
+                        </option>
 
+                    </select>
 
-        <button type="submit">Add Post</button>
+                    <button type="submit">Search</button>
 
-    </form>
+                    <a href="posts.php">Reset</a>
 
+                </form>
 
-    <hr>
 
+                <a href="posts/add.php" class="add-post-btn">
 
-    <!-- DISPLAY POSTS -->
+                    + Add New Post
 
-    <h2>Registered Posts</h2>
+                </a>
 
-    <table border="1" cellpadding="10">
+            </section>
 
-        <thead>
 
-            <tr>
+            <!-- Success Messages -->
 
-                <th>Post ID</th>
+            <?php if (isset($_GET['updated'])): ?>
 
-                <th>Client</th>
-
-                <th>Brand</th>
-
-                <th>Account</th>
-
-                <th>Platform</th>
-
-                <th>Caption</th>
-
-                <th>Post Type</th>
-
-                <th>Published At</th>
-
-                <th>Post URL</th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody>
-
-            <?php if (count($posts) > 0): ?>
-
-                <?php foreach ($posts as $post): ?>
-
-                    <tr>
-
-                        <td><?= (int) $post['post_id'] ?></td>
-
-                        <td><?= htmlspecialchars($post['client_name']) ?></td>
-
-                        <td><?= htmlspecialchars($post['brand_name']) ?></td>
-
-                        <td><?= htmlspecialchars($post['account_name']) ?></td>
-
-                        <td><?= htmlspecialchars($post['platform']) ?></td>
-
-                        <td><?= htmlspecialchars($post['caption'] ?? '') ?></td>
-
-                        <td><?= htmlspecialchars($post['post_type']) ?></td>
-
-                        <td><?= htmlspecialchars($post['published_at'] ?? 'Not published') ?></td>
-
-                        <td>
-
-                            <?php if (!empty($post['post_url'])): ?>
-
-                                <a
-                                    href="<?= htmlspecialchars($post['post_url']) ?>"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    View Post
-                                </a>
-
-                            <?php else: ?>
-
-                                N/A
-
-                            <?php endif; ?>
-
-                        </td>
-
-                    </tr>
-
-                <?php endforeach; ?>
-
-            <?php else: ?>
-
-                <tr>
-
-                    <td colspan="9">No posts found.</td>
-
-                </tr>
+                <p class="success-message">
+                    Post updated successfully!
+                </p>
 
             <?php endif; ?>
 
-        </tbody>
 
-    </table>
+            <!-- Posts Table -->
+
+            <section class="posts-table-container">
+
+                <div class="table-header">
+
+                    <h3>All Posts</h3>
+
+                    <span>
+                        Showing <?= count($posts) ?> of <?= $totalPosts ?> posts
+                    </span>
+
+                </div>
+
+
+                <?php if (empty($posts)): ?>
+
+                    <div class="empty-state">
+
+                        <h3>No Posts Found</h3>
+
+                        <p>
+                            No posts match your search or filter.
+                        </p>
+
+                    </div>
+
+                <?php else: ?>
+
+                    <div class="table-responsive">
+
+                        <table class="posts-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>ID</th>
+
+                                    <th>Caption</th>
+
+                                    <th>Client</th>
+
+                                    <th>Brand</th>
+
+                                    <th>Platform</th>
+
+                                    <th>Account</th>
+
+                                    <th>Post Type</th>
+
+                                    <th>Published Date</th>
+
+                                    <th>Post URL</th>
+
+                                    <th>Actions</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                <?php foreach ($posts as $post): ?>
+
+                                    <tr>
+
+                                        <td>
+                                            <?= (int)$post['post_id'] ?>
+                                        </td>
+
+                                        <td class="caption-cell">
+
+                                            <?= escape($post['caption']) ?>
+
+                                        </td>
+
+                                        <td>
+                                            <?= escape($post['client_name']) ?>
+                                        </td>
+
+                                        <td>
+                                            <?= escape($post['brand_name']) ?>
+                                        </td>
+
+                                        <td>
+
+                                            <span class="platform-badge
+                                            <?= strtolower(escape($post['platform'])) ?>">
+
+                                                <?= escape($post['platform']) ?>
+
+                                            </span>
+
+                                        </td>
+
+                                        <td>
+                                            <?= escape($post['account_name']) ?>
+                                        </td>
+
+                                        <td>
+                                            <?= escape($post['post_type']) ?>
+                                        </td>
+
+                                        <td>
+
+                                            <?= escape(
+                                                date(
+                                                    'd M Y, h:i A',
+                                                    strtotime($post['published_at'])
+                                                )
+                                            ) ?>
+
+                                        </td>
+
+                                        <td>
+
+                                            <?php if (!empty($post['post_url'])): ?>
+
+                                                <a
+                                                    href="<?= escape($post['post_url']) ?>"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="post-link">
+
+                                                    View Post
+
+                                                </a>
+
+                                            <?php else: ?>
+
+                                                <span>-</span>
+
+                                            <?php endif; ?>
+
+                                        </td>
+
+                                        <td>
+
+                                            <a
+                                                href="posts/edit.php?id=<?= (int)$post['post_id'] ?>"
+                                                class="edit-btn">
+                                                Edit
+                                            </a>
+
+                                            <form
+                                                action="posts/delete.php"
+                                                method="POST"
+                                                style="display:inline;"
+                                                onsubmit="return confirm('Are you sure you want to delete this post and its analytics?');">
+
+                                                <input
+                                                    type="hidden"
+                                                    name="csrf_token"
+                                                    value="<?= escape($_SESSION['csrf_token']) ?>">
+
+                                                <input
+                                                    type="hidden"
+                                                    name="post_id"
+                                                    value="<?= (int)$post['post_id'] ?>">
+
+                                                <button type="submit" class="delete-btn">
+                                                    Delete
+                                                </button>
+
+                                            </form>
+                                        </td>
+
+                                    </tr>
+
+                                <?php endforeach; ?>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                <?php endif; ?>
+
+
+                <!-- Pagination -->
+
+                <?php if ($totalPages > 1): ?>
+
+                    <div class="pagination">
+
+                        <?php if ($page > 1): ?>
+
+                            <a href="<?= escape(pageUrl($page - 1)) ?>">
+                                Previous
+                            </a>
+
+                        <?php endif; ?>
+
+
+                        <span>
+
+                            Page <?= $page ?> of <?= $totalPages ?>
+
+                        </span>
+
+
+                        <?php if ($page < $totalPages): ?>
+
+                            <a href="<?= escape(pageUrl($page + 1)) ?>">
+                                Next
+                            </a>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                <?php endif; ?>
+
+            </section>
+
+        </main>
+
+    </div>
 
 </body>
+
 </html>
