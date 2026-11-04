@@ -1,10 +1,15 @@
 <?php
+
 require_once '../../config/database.php';
 require_once '../../includes/auth.php';
 
 requireLogin();
 
-if (!hasRole('Admin') && !hasRole('Social Media Manager')) {
+$userId = getUserId();
+$userRole = getUserRole();
+
+// Admins, Managers, and Clients can download reports.
+if (!in_array($userRole, ['Admin', 'Social Media Manager', 'Client'], true)) {
     http_response_code(403);
     exit('Access denied.');
 }
@@ -16,32 +21,54 @@ if (!$reportId || $reportId <= 0) {
     exit('Invalid report ID.');
 }
 
-$userId = getUserId();
-$userRole = getUserRole();
-
 try {
 
-    // Verify report access.
+    // ==========================================
+    // VERIFY REPORT ACCESS
+    // ==========================================
+
     if ($userRole === 'Admin') {
 
         $stmt = $pdo->prepare("
             SELECT r.*, b.brand_name
             FROM reports r
-            JOIN brands b ON r.brand_id = b.brand_id
+            INNER JOIN brands b
+                ON r.brand_id = b.brand_id
             WHERE r.report_id = ?
         ");
 
         $stmt->execute([$reportId]);
 
-    } else {
+    } elseif ($userRole === 'Social Media Manager') {
 
         $stmt = $pdo->prepare("
             SELECT r.*, b.brand_name
             FROM reports r
-            JOIN brands b ON r.brand_id = b.brand_id
-            JOIN brand_members bm ON bm.brand_id = r.brand_id
+            INNER JOIN brands b
+                ON r.brand_id = b.brand_id
             WHERE r.report_id = ?
-            AND bm.user_id = ?
+            AND EXISTS (
+                SELECT 1
+                FROM brand_members bm
+                WHERE bm.brand_id = r.brand_id
+                AND bm.user_id = ?
+            )
+        ");
+
+        $stmt->execute([$reportId, $userId]);
+
+    } else {
+
+        // Clients can only access reports for their own brands.
+        $stmt = $pdo->prepare("
+            SELECT r.*, b.brand_name
+            FROM reports r
+            INNER JOIN brands b
+                ON r.brand_id = b.brand_id
+            INNER JOIN users u
+                ON u.client_id = b.client_id
+            WHERE r.report_id = ?
+            AND u.user_id = ?
         ");
 
         $stmt->execute([$reportId, $userId]);
@@ -54,8 +81,11 @@ try {
         exit('Report not found or access denied.');
     }
 
-    // Retrieve latest metric record for each post
-    // within the selected date range.
+
+    // ==========================================
+    // RETRIEVE LATEST METRICS FOR EACH POST
+    // ==========================================
+
     $sql = "
         SELECT
             p.post_id,
@@ -73,14 +103,16 @@ try {
 
         FROM post_metrics pm
 
-        JOIN posts p
+        INNER JOIN posts p
             ON pm.post_id = p.post_id
 
-        JOIN social_accounts sa
+        INNER JOIN social_accounts sa
             ON p.account_id = sa.account_id
 
         WHERE sa.brand_id = :brand_id
-        AND DATE(pm.recorded_at) BETWEEN :start_outer AND :end_outer
+
+        AND DATE(pm.recorded_at)
+            BETWEEN :start_outer AND :end_outer
 
         AND (
             :platform_outer = 'All'
@@ -122,7 +154,11 @@ try {
 
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Calculate summary totals.
+
+    // ==========================================
+    // CALCULATE SUMMARY TOTALS
+    // ==========================================
+
     $totalViews = 0;
     $totalLikes = 0;
     $totalComments = 0;
@@ -130,6 +166,7 @@ try {
     $totalReach = 0;
 
     foreach ($posts as $post) {
+
         $totalViews += (int)$post['views'];
         $totalLikes += (int)$post['likes'];
         $totalComments += (int)$post['comments'];
@@ -143,7 +180,11 @@ try {
         ? ($engagements / $totalReach) * 100
         : 0;
 
-    // CSV output.
+
+    // ==========================================
+    // GENERATE CSV FILE
+    // ==========================================
+
     $filename = 'SocialPulse_Report_' . $reportId . '.csv';
 
     header('Content-Type: text/csv; charset=utf-8');
@@ -155,6 +196,7 @@ try {
     // UTF-8 BOM for Excel compatibility.
     fwrite($output, "\xEF\xBB\xBF");
 
+
     // Report information.
     fputcsv($output, ['SocialPulse Report']);
     fputcsv($output, ['Report Name', $report['report_name']]);
@@ -165,7 +207,8 @@ try {
 
     fputcsv($output, []);
 
-    // Summary.
+
+    // Performance summary.
     fputcsv($output, ['Performance Summary']);
     fputcsv($output, ['Total Posts', count($posts)]);
     fputcsv($output, ['Total Views', $totalViews]);
@@ -173,12 +216,14 @@ try {
     fputcsv($output, ['Total Comments', $totalComments]);
     fputcsv($output, ['Total Shares', $totalShares]);
     fputcsv($output, ['Total Reach', $totalReach]);
+
     fputcsv($output, [
         'Engagement Rate',
         number_format($engagementRate, 2) . '%'
     ]);
 
     fputcsv($output, []);
+
 
     // Post details.
     fputcsv($output, [

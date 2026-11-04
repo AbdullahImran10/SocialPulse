@@ -7,8 +7,8 @@ requireLogin();
 $userId = getUserId();
 $role = getUserRole();
 
-// Only Admin and Social Media Managers can generate reports.
-if (!in_array($role, ['Admin', 'Social Media Manager'], true)) {
+// Admins, Managers, and Clients can access Reports.
+if (!in_array($role, ['Admin', 'Social Media Manager', 'Client'], true)) {
     http_response_code(403);
     exit('Access denied.');
 }
@@ -54,7 +54,10 @@ $brands = $brandStmt->fetchAll();
 
 // Generate report
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+    if ($role === 'Client') {
+        http_response_code(403);
+        exit('Clients cannot create reports.');
+    }
     if (
         !isset($_POST['csrf_token']) ||
         !hash_equals($csrfToken, $_POST['csrf_token'])
@@ -134,38 +137,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get report history
+// ==========================================
+// GET REPORT HISTORY
+// ==========================================
+
 if ($role === 'Admin') {
 
-    $historyStmt = $pdo->query("
+    $reportStmt = $pdo->query("
         SELECT
             r.*,
             b.brand_name,
             u.name AS creator_name
+
         FROM reports r
-        INNER JOIN brands b ON b.brand_id = r.brand_id
-        INNER JOIN users u ON u.user_id = r.created_by
+
+        INNER JOIN brands b
+            ON b.brand_id = r.brand_id
+
+        LEFT JOIN users u
+            ON u.user_id = r.created_by
+
         ORDER BY r.created_at DESC
     ");
+} elseif ($role === 'Social Media Manager') {
+
+    $reportStmt = $pdo->prepare("
+        SELECT
+            r.*,
+            b.brand_name,
+            u.name AS creator_name
+
+        FROM reports r
+
+        INNER JOIN brands b
+            ON b.brand_id = r.brand_id
+
+        LEFT JOIN users u
+            ON u.user_id = r.created_by
+
+        WHERE EXISTS (
+            SELECT 1
+            FROM brand_members bm
+            WHERE bm.brand_id = r.brand_id
+            AND bm.user_id = ?
+        )
+
+        ORDER BY r.created_at DESC
+    ");
+
+    $reportStmt->execute([$userId]);
 } else {
 
-    $historyStmt = $pdo->prepare("
+    $reportStmt = $pdo->prepare("
         SELECT
             r.*,
             b.brand_name,
             u.name AS creator_name
+
         FROM reports r
-        INNER JOIN brands b ON b.brand_id = r.brand_id
-        INNER JOIN users u ON u.user_id = r.created_by
-        INNER JOIN brand_members bm ON bm.brand_id = r.brand_id
-        WHERE bm.user_id = ?
+
+        INNER JOIN brands b
+            ON b.brand_id = r.brand_id
+
+        LEFT JOIN users u
+            ON u.user_id = r.created_by
+
+        WHERE b.client_id = (
+            SELECT client_id
+            FROM users
+            WHERE user_id = ?
+        )
+
         ORDER BY r.created_at DESC
     ");
 
-    $historyStmt->execute([$userId]);
+    $reportStmt->execute([$userId]);
 }
 
-$reports = $historyStmt->fetchAll();
+$reports = $reportStmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -184,29 +233,36 @@ $reports = $historyStmt->fetchAll();
 
 <body>
 
-    <div class="reports-container">
-
-        <div class="reports-header">
-            <div>
-                <h1>Reports Management</h1>
-                <p>Generate and manage your social media performance reports.</p>
-            </div>
+    <div class="reports-header">
+        <div>
+            <h1>Reports Management</h1>
+            <p>Generate and manage your social media performance reports.</p>
         </div>
 
-        <?php if (isset($_GET['success'])): ?>
-            <div class="success-message">
-                Report created successfully!
-            </div>
-        <?php endif; ?>
+        <a href="/socialpulse/public/dashboard.php" class="back-dashboard-btn">
+            ← Back to Dashboard
+        </a>
+    </div>
 
-        <?php foreach ($errors as $error): ?>
-            <div class="error-message">
-                <?= escape($error) ?>
-            </div>
-        <?php endforeach; ?>
+    <?php if (isset($_GET['success'])): ?>
+        <div class="success-message">
+            Report created successfully!
+        </div>
+    <?php endif; ?>
+
+    <?php foreach ($errors as $error): ?>
+        <div class="error-message">
+            <?= escape($error) ?>
+        </div>
+    <?php endforeach; ?>
 
 
-        <!-- Generate Report Form -->
+    <!-- Generate Report Form -->
+    <?php if ($role !== 'Client'): ?>
+
+        <!-- Your existing report creation form goes here -->
+
+
 
         <section class="report-card">
 
@@ -285,94 +341,98 @@ $reports = $historyStmt->fetchAll();
             </form>
 
         </section>
-        <?php if (isset($_GET['deleted'])): ?>
-            <div class="success-message">
-                Report deleted successfully!
-            </div>
-        <?php endif; ?>
+    <?php endif; ?>
 
 
-        <!-- Report History -->
+    <?php if (isset($_GET['deleted'])): ?>
+        <div class="success-message">
+            Report deleted successfully!
+        </div>
+    <?php endif; ?>
 
-        <section class="report-card">
 
-            <div class="report-history-header">
-                <h2>Report History</h2>
-                <span><?= count($reports) ?> Reports</span>
-            </div>
+    <!-- Report History -->
 
-            <div class="table-responsive">
+    <section class="report-card">
 
-                <table class="reports-table">
+        <div class="report-history-header">
+            <h2>Report History</h2>
+            <span><?= count($reports) ?> Reports</span>
+        </div>
 
-                    <thead>
+        <div class="table-responsive">
+
+            <table class="reports-table">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Report Name</th>
+                        <th>Brand</th>
+                        <th>Platform</th>
+                        <th>Date Range</th>
+                        <th>Created By</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <?php if (empty($reports)): ?>
+
                         <tr>
-                            <th>ID</th>
-                            <th>Report Name</th>
-                            <th>Brand</th>
-                            <th>Platform</th>
-                            <th>Date Range</th>
-                            <th>Created By</th>
-                            <th>Created At</th>
-                            <th>Actions</th>
+                            <td colspan="8" class="empty-state">
+                                No reports have been generated yet.
+                            </td>
                         </tr>
-                    </thead>
 
-                    <tbody>
+                    <?php else: ?>
 
-                        <?php if (empty($reports)): ?>
+                        <?php foreach ($reports as $report): ?>
 
                             <tr>
-                                <td colspan="8" class="empty-state">
-                                    No reports have been generated yet.
+                                <td>#<?= escape($report['report_id']) ?></td>
+
+                                <td>
+                                    <?= escape($report['report_name']) ?>
                                 </td>
-                            </tr>
 
-                        <?php else: ?>
+                                <td>
+                                    <?= escape($report['brand_name']) ?>
+                                </td>
 
-                            <?php foreach ($reports as $report): ?>
+                                <td>
+                                    <?= escape($report['platform']) ?>
+                                </td>
 
-                                <tr>
-                                    <td>#<?= escape($report['report_id']) ?></td>
+                                <td>
+                                    <?= escape($report['start_date']) ?>
+                                    to
+                                    <?= escape($report['end_date']) ?>
+                                </td>
 
-                                    <td>
-                                        <?= escape($report['report_name']) ?>
-                                    </td>
+                                <td>
+                                    <?= escape($report['creator_name']) ?>
+                                </td>
 
-                                    <td>
-                                        <?= escape($report['brand_name']) ?>
-                                    </td>
+                                <td>
+                                    <?= escape($report['created_at']) ?>
+                                </td>
 
-                                    <td>
-                                        <?= escape($report['platform']) ?>
-                                    </td>
+                                <td>
+                                    <div class="report-actions">
 
-                                    <td>
-                                        <?= escape($report['start_date']) ?>
-                                        to
-                                        <?= escape($report['end_date']) ?>
-                                    </td>
+                                        <a href="/socialpulse/public/reports/view.php?id=<?= (int)$report['report_id'] ?>"
+                                            class="view-report-btn">
+                                            View Report
+                                        </a>
 
-                                    <td>
-                                        <?= escape($report['creator_name']) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= escape($report['created_at']) ?>
-                                    </td>
-
-                                    <td>
-                                        <div class="report-actions">
-
-                                            <a href="/socialpulse/public/reports/view.php?id=<?= (int)$report['report_id'] ?>"
-                                                class="view-report-btn">
-                                                View Report
-                                            </a>
-
-                                            <a href="/socialpulse/public/reports/download.php?id=<?= (int)$report['report_id'] ?>"
-                                                class="download-report-btn">
-                                                Download CSV
-                                            </a>
+                                        <a href="/socialpulse/public/reports/download.php?id=<?= (int)$report['report_id'] ?>"
+                                            class="download-report-btn">
+                                            Download CSV
+                                        </a>
+                                        <?php if ($role !== 'Client'): ?>
 
                                             <form action="/socialpulse/public/reports/delete.php"
                                                 method="POST"
@@ -391,22 +451,23 @@ $reports = $historyStmt->fetchAll();
                                                 </button>
 
                                             </form>
+                                        <?php endif; ?>
 
-                                        </div>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </td>
+                            </tr>
 
-                            <?php endforeach; ?>
+                        <?php endforeach; ?>
 
-                        <?php endif; ?>
+                    <?php endif; ?>
 
-                    </tbody>
+                </tbody>
 
-                </table>
+            </table>
 
-            </div>
+        </div>
 
-        </section>
+    </section>
 
     </div>
 

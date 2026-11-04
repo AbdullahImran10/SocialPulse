@@ -283,13 +283,18 @@ function escape($value)
                     Dashboard
                 </a>
 
-                <a href="posts.php">
-                    Posts
-                </a>
+                <?php if ($userRole === 'Admin' || $userRole === 'Social Media Manager'): ?>
 
-                <a href="metrics.php">
-                    Analytics
-                </a>
+                    <a href="posts.php">
+                        Posts
+                    </a>
+
+                    <a href="metrics.php">
+                        Analytics
+                    </a>
+
+                <?php endif; ?>
+
 
                 <?php if ($userRole === 'Admin'): ?>
 
@@ -331,13 +336,18 @@ function escape($value)
                         Reports
                     </a>
 
-                <?php else: ?>
+                <?php elseif ($userRole === 'Client'): ?>
 
                     <a href="client/index.php">
                         My Account
                     </a>
 
+                    <a href="reports.php">
+                        My Reports
+                    </a>
+
                 <?php endif; ?>
+
 
                 <a href="logout.php">
                     Logout

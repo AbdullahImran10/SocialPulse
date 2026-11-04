@@ -5,12 +5,9 @@ require_once '../../includes/auth.php';
 requireLogin();
 
 // Only Admin and Social Media Managers can view reports.
-if (!hasRole('Admin') && !hasRole('Social Media Manager')) {
-    http_response_code(403);
-    exit('Access denied.');
-}
 
-function escape($value) {
+function escape($value)
+{
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
@@ -24,31 +21,45 @@ if (!$reportId || $reportId <= 0) {
 
 $userId = getUserId();
 $userRole = getUserRole();
-
+if (!in_array($userRole, ['Admin', 'Social Media Manager', 'Client'], true)) {
+    http_response_code(403);
+    exit('Access denied.');
+}
 try {
 
     // Get report and verify user access.
     if ($userRole === 'Admin') {
 
         $stmt = $pdo->prepare("
-            SELECT r.*, b.brand_name
-            FROM reports r
-            JOIN brands b ON r.brand_id = b.brand_id
-            WHERE r.report_id = ?
-        ");
+        SELECT r.*, b.brand_name
+        FROM reports r
+        JOIN brands b ON r.brand_id = b.brand_id
+        WHERE r.report_id = ?
+    ");
 
         $stmt->execute([$reportId]);
+    } elseif ($userRole === 'Social Media Manager') {
 
+        $stmt = $pdo->prepare("
+        SELECT r.*, b.brand_name
+        FROM reports r
+        JOIN brands b ON r.brand_id = b.brand_id
+        JOIN brand_members bm ON bm.brand_id = r.brand_id
+        WHERE r.report_id = ?
+        AND bm.user_id = ?
+    ");
+
+        $stmt->execute([$reportId, $userId]);
     } else {
 
         $stmt = $pdo->prepare("
-            SELECT r.*, b.brand_name
-            FROM reports r
-            JOIN brands b ON r.brand_id = b.brand_id
-            JOIN brand_members bm ON bm.brand_id = r.brand_id
-            WHERE r.report_id = ?
-            AND bm.user_id = ?
-        ");
+        SELECT r.*, b.brand_name
+        FROM reports r
+        JOIN brands b ON r.brand_id = b.brand_id
+        JOIN users u ON u.client_id = b.client_id
+        WHERE r.report_id = ?
+        AND u.user_id = ?
+    ");
 
         $stmt->execute([$reportId, $userId]);
     }
@@ -149,7 +160,6 @@ try {
     $engagementRate = $totalReach > 0
         ? ($totalEngagements / $totalReach) * 100
         : 0;
-
 } catch (PDOException $e) {
 
     error_log($e->getMessage());
@@ -174,175 +184,176 @@ try {
 
 <body>
 
-<div class="reports-container">
+    <div class="reports-container">
 
-    <div class="reports-header">
+        <div class="reports-header">
 
-        <div>
-            <h1><?= escape($report['report_name']) ?></h1>
+            <div>
+                <h1><?= escape($report['report_name']) ?></h1>
 
-            <p>
-                Brand: <?= escape($report['brand_name']) ?>
-            </p>
+                <p>
+                    Brand: <?= escape($report['brand_name']) ?>
+                </p>
 
-            <p>
-                Period:
-                <?= escape($report['start_date']) ?>
-                to
-                <?= escape($report['end_date']) ?>
-            </p>
+                <p>
+                    Period:
+                    <?= escape($report['start_date']) ?>
+                    to
+                    <?= escape($report['end_date']) ?>
+                </p>
 
-            <p>
-                Platform: <?= escape($report['platform']) ?>
-            </p>
-        </div>
-
-        <a href="../reports.php" class="back-btn">
-            Back to Reports
-        </a>
-
-    </div>
-
-
-    <!-- Summary Cards -->
-
-    <div class="report-card">
-
-        <h2>Performance Summary</h2>
-
-        <div class="report-summary">
-
-            <div class="summary-item">
-                <h3>Total Posts</h3>
-                <p><?= count($posts) ?></p>
+                <p>
+                    Platform: <?= escape($report['platform']) ?>
+                </p>
             </div>
 
-            <div class="summary-item">
-                <h3>Views</h3>
-                <p><?= number_format($totalViews) ?></p>
-            </div>
-
-            <div class="summary-item">
-                <h3>Likes</h3>
-                <p><?= number_format($totalLikes) ?></p>
-            </div>
-
-            <div class="summary-item">
-                <h3>Comments</h3>
-                <p><?= number_format($totalComments) ?></p>
-            </div>
-
-            <div class="summary-item">
-                <h3>Shares</h3>
-                <p><?= number_format($totalShares) ?></p>
-            </div>
-
-            <div class="summary-item">
-                <h3>Reach</h3>
-                <p><?= number_format($totalReach) ?></p>
-            </div>
-
-            <div class="summary-item">
-                <h3>Engagement Rate</h3>
-                <p><?= number_format($engagementRate, 2) ?>%</p>
-            </div>
+            <a href="../reports.php" class="back-btn">
+                Back to Reports
+            </a>
 
         </div>
 
-    </div>
+
+        <!-- Summary Cards -->
+
+        <div class="report-card">
+
+            <h2>Performance Summary</h2>
+
+            <div class="report-summary">
+
+                <div class="summary-item">
+                    <h3>Total Posts</h3>
+                    <p><?= count($posts) ?></p>
+                </div>
+
+                <div class="summary-item">
+                    <h3>Views</h3>
+                    <p><?= number_format($totalViews) ?></p>
+                </div>
+
+                <div class="summary-item">
+                    <h3>Likes</h3>
+                    <p><?= number_format($totalLikes) ?></p>
+                </div>
+
+                <div class="summary-item">
+                    <h3>Comments</h3>
+                    <p><?= number_format($totalComments) ?></p>
+                </div>
+
+                <div class="summary-item">
+                    <h3>Shares</h3>
+                    <p><?= number_format($totalShares) ?></p>
+                </div>
+
+                <div class="summary-item">
+                    <h3>Reach</h3>
+                    <p><?= number_format($totalReach) ?></p>
+                </div>
+
+                <div class="summary-item">
+                    <h3>Engagement Rate</h3>
+                    <p><?= number_format($engagementRate, 2) ?>%</p>
+                </div>
+
+            </div>
+
+        </div>
 
 
-    <!-- Individual Post Performance -->
+        <!-- Individual Post Performance -->
 
-    <div class="report-card">
+        <div class="report-card">
 
-        <h2>Post Performance</h2>
+            <h2>Post Performance</h2>
 
-        <div class="reports-table-container">
+            <div class="reports-table-container">
 
-            <table class="reports-table">
+                <table class="reports-table">
 
-                <thead>
-                    <tr>
-                        <th>Post ID</th>
-                        <th>Platform</th>
-                        <th>Account</th>
-                        <th>Caption</th>
-                        <th>Views</th>
-                        <th>Likes</th>
-                        <th>Comments</th>
-                        <th>Shares</th>
-                        <th>Reach</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    <?php if (empty($posts)): ?>
-
+                    <thead>
                         <tr>
-                            <td colspan="9" class="empty-state">
-                                No post metrics found for this report.
-                            </td>
+                            <th>Post ID</th>
+                            <th>Platform</th>
+                            <th>Account</th>
+                            <th>Caption</th>
+                            <th>Views</th>
+                            <th>Likes</th>
+                            <th>Comments</th>
+                            <th>Shares</th>
+                            <th>Reach</th>
                         </tr>
+                    </thead>
 
-                    <?php else: ?>
+                    <tbody>
 
-                        <?php foreach ($posts as $post): ?>
+                        <?php if (empty($posts)): ?>
 
                             <tr>
-
-                                <td>
-                                    #<?= escape($post['post_id']) ?>
+                                <td colspan="9" class="empty-state">
+                                    No post metrics found for this report.
                                 </td>
-
-                                <td>
-                                    <?= escape($post['platform']) ?>
-                                </td>
-
-                                <td>
-                                    <?= escape($post['account_name']) ?>
-                                </td>
-
-                                <td>
-                                    <?= escape($post['caption']) ?>
-                                </td>
-
-                                <td>
-                                    <?= number_format($post['views']) ?>
-                                </td>
-
-                                <td>
-                                    <?= number_format($post['likes']) ?>
-                                </td>
-
-                                <td>
-                                    <?= number_format($post['comments']) ?>
-                                </td>
-
-                                <td>
-                                    <?= number_format($post['shares']) ?>
-                                </td>
-
-                                <td>
-                                    <?= number_format($post['reach']) ?>
-                                </td>
-
                             </tr>
 
-                        <?php endforeach; ?>
+                        <?php else: ?>
 
-                    <?php endif; ?>
+                            <?php foreach ($posts as $post): ?>
 
-                </tbody>
+                                <tr>
 
-            </table>
+                                    <td>
+                                        #<?= escape($post['post_id']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= escape($post['platform']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= escape($post['account_name']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= escape($post['caption']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= number_format($post['views']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= number_format($post['likes']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= number_format($post['comments']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= number_format($post['shares']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= number_format($post['reach']) ?>
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+                        <?php endif; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
-
 </body>
+
 </html>
