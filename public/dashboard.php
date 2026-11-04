@@ -56,7 +56,6 @@ if ($userRole === 'Social Media Manager') {
     ";
 
     $accessParams[] = $userId;
-
 } elseif ($userRole === 'Client') {
 
     $accessCondition = "
@@ -68,12 +67,10 @@ if ($userRole === 'Social Media Manager') {
     ";
 
     $accessParams[] = $userId;
-
 } elseif ($userRole !== 'Admin') {
 
     http_response_code(403);
     exit('Access denied.');
-
 }
 
 
@@ -232,7 +229,6 @@ foreach ($platformData as $row) {
     $platformLabels[] = $row['platform'];
 
     $platformViews[] = (int) $row['total_views'];
-
 }
 
 
@@ -271,438 +267,442 @@ function escape($value)
 <body>
 
 
-<!-- ======================================
+    <!-- ======================================
      SIDEBAR
 ======================================= -->
 
-<div class="dashboard-container">
+    <div class="dashboard-container">
 
-    <aside class="sidebar">
+        <aside class="sidebar">
 
-        <h2>SocialPulse</h2>
+            <h2>SocialPulse</h2>
 
-        <nav>
+            <nav>
 
-            <a href="dashboard.php" class="active">
-                Dashboard
-            </a>
-
-            <a href="posts.php">
-                Posts
-            </a>
-
-            <a href="metrics.php">
-                Analytics
-            </a>
-
-            <?php if ($userRole === 'Admin'): ?>
-
-                <a href="admin/index.php">
-                    Admin Panel
+                <a href="dashboard.php" class="active">
+                    Dashboard
                 </a>
 
-                <a href="admin/users.php">
-                    Users
+                <a href="posts.php">
+                    Posts
                 </a>
 
-                <a href="admin/brands.php">
-                    Brands
+                <a href="metrics.php">
+                    Analytics
                 </a>
 
-                <a href="admin/clients.php">
-                    Clients
+                <?php if ($userRole === 'Admin'): ?>
+
+                    <a href="admin/index.php">
+                        Admin Panel
+                    </a>
+
+                    <a href="admin/users.php">
+                        Users
+                    </a>
+
+                    <a href="admin/brands.php">
+                        Brands
+                    </a>
+
+                    <a href="admin/clients.php">
+                        Clients
+                    </a>
+
+                    <a href="admin/social_accounts.php">
+                        Social Accounts
+                    </a>
+
+                    <a href="admin/brand_members.php">
+                        Brand Members
+                    </a>
+
+                    <a href="reports.php">
+                        Reports
+                    </a>
+
+                <?php elseif ($userRole === 'Social Media Manager'): ?>
+
+                    <a href="manager/index.php">
+                        Manager Panel
+                    </a>
+
+                    <a href="reports.php">
+                        Reports
+                    </a>
+
+                <?php else: ?>
+
+                    <a href="client/index.php">
+                        My Account
+                    </a>
+
+                <?php endif; ?>
+
+                <a href="logout.php">
+                    Logout
                 </a>
 
-                <a href="admin/social_accounts.php">
-                    Social Accounts
-                </a>
+            </nav>
 
-                <a href="admin/brand_members.php">
-                    Brand Members
-                </a>
+        </aside>
 
-            <?php elseif ($userRole === 'Social Media Manager'): ?>
-
-                <a href="manager/index.php">
-                    Manager Panel
-                </a>
-
-            <?php else: ?>
-
-                <a href="client/index.php">
-                    My Account
-                </a>
-
-            <?php endif; ?>
-
-            <a href="logout.php">
-                Logout
-            </a>
-
-        </nav>
-
-    </aside>
-
-
-    <!-- ======================================
+        <!-- ======================================
          MAIN CONTENT
     ======================================= -->
 
-    <main class="main-content">
+        <main class="main-content">
 
 
-        <!-- HEADER -->
+            <!-- HEADER -->
 
-        <header class="topbar">
+            <header class="topbar">
 
-            <div>
+                <div>
 
-                <h1>Dashboard</h1>
+                    <h1>Dashboard</h1>
 
-                <p>
-                    Welcome to your SocialPulse dashboard.
-                </p>
+                    <p>
+                        Welcome to your SocialPulse dashboard.
+                    </p>
 
-            </div>
+                </div>
 
-            <div class="user-info">
+                <div class="user-info">
 
-                <span>
-                    <?= escape($userRole) ?>
-                </span>
+                    <span>
+                        <?= escape($userRole) ?>
+                    </span>
 
-            </div>
+                </div>
 
-        </header>
+            </header>
 
 
-        <!-- ======================================
+            <!-- ======================================
              DATE FILTER
         ======================================= -->
 
-        <section class="filter-section">
+            <section class="filter-section">
 
-            <form method="GET" class="date-filter">
+                <form method="GET" class="date-filter">
 
-                <div>
+                    <div>
 
-                    <label for="start_date">
-                        Start Date
-                    </label>
+                        <label for="start_date">
+                            Start Date
+                        </label>
 
-                    <input
-                        type="date"
-                        id="start_date"
-                        name="start_date"
-                        value="<?= escape($startDate) ?>"
-                        required
-                    >
+                        <input
+                            type="date"
+                            id="start_date"
+                            name="start_date"
+                            value="<?= escape($startDate) ?>"
+                            required>
 
-                </div>
-
-
-                <div>
-
-                    <label for="end_date">
-                        End Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="end_date"
-                        name="end_date"
-                        value="<?= escape($endDate) ?>"
-                        required
-                    >
-
-                </div>
+                    </div>
 
 
-                <button type="submit">
-                    Apply Filter
-                </button>
+                    <div>
 
-                <a href="dashboard.php">
-                    Reset
-                </a>
+                        <label for="end_date">
+                            End Date
+                        </label>
 
-            </form>
+                        <input
+                            type="date"
+                            id="end_date"
+                            name="end_date"
+                            value="<?= escape($endDate) ?>"
+                            required>
 
-        </section>
+                    </div>
 
 
-        <!-- ======================================
+                    <button type="submit">
+                        Apply Filter
+                    </button>
+
+                    <a href="dashboard.php">
+                        Reset
+                    </a>
+
+                </form>
+
+            </section>
+
+
+            <!-- ======================================
              ANALYTICS CARDS
         ======================================= -->
 
-        <section class="analytics-grid">
+            <section class="analytics-grid">
 
 
-            <div class="analytics-card">
+                <div class="analytics-card">
 
-                <h3>Total Posts</h3>
+                    <h3>Total Posts</h3>
 
-                <h2>
-                    <?= number_format($analytics['total_posts']) ?>
-                </h2>
+                    <h2>
+                        <?= number_format($analytics['total_posts']) ?>
+                    </h2>
 
-            </div>
-
-
-            <div class="analytics-card">
-
-                <h3>Total Views</h3>
-
-                <h2>
-                    <?= number_format($analytics['total_views']) ?>
-                </h2>
-
-            </div>
+                </div>
 
 
-            <div class="analytics-card">
+                <div class="analytics-card">
 
-                <h3>Total Reach</h3>
+                    <h3>Total Views</h3>
 
-                <h2>
-                    <?= number_format($analytics['total_reach']) ?>
-                </h2>
+                    <h2>
+                        <?= number_format($analytics['total_views']) ?>
+                    </h2>
 
-            </div>
-
-
-            <div class="analytics-card">
-
-                <h3>Total Likes</h3>
-
-                <h2>
-                    <?= number_format($analytics['total_likes']) ?>
-                </h2>
-
-            </div>
+                </div>
 
 
-            <div class="analytics-card">
+                <div class="analytics-card">
 
-                <h3>Total Comments</h3>
+                    <h3>Total Reach</h3>
 
-                <h2>
-                    <?= number_format($analytics['total_comments']) ?>
-                </h2>
+                    <h2>
+                        <?= number_format($analytics['total_reach']) ?>
+                    </h2>
 
-            </div>
-
-
-            <div class="analytics-card">
-
-                <h3>Total Shares</h3>
-
-                <h2>
-                    <?= number_format($analytics['total_shares']) ?>
-                </h2>
-
-            </div>
+                </div>
 
 
-            <div class="analytics-card">
+                <div class="analytics-card">
 
-                <h3>Total Engagement</h3>
+                    <h3>Total Likes</h3>
 
-                <h2>
-                    <?= number_format($totalEngagement) ?>
-                </h2>
+                    <h2>
+                        <?= number_format($analytics['total_likes']) ?>
+                    </h2>
 
-            </div>
-
-
-        </section>
+                </div>
 
 
-        <!-- ======================================
+                <div class="analytics-card">
+
+                    <h3>Total Comments</h3>
+
+                    <h2>
+                        <?= number_format($analytics['total_comments']) ?>
+                    </h2>
+
+                </div>
+
+
+                <div class="analytics-card">
+
+                    <h3>Total Shares</h3>
+
+                    <h2>
+                        <?= number_format($analytics['total_shares']) ?>
+                    </h2>
+
+                </div>
+
+
+                <div class="analytics-card">
+
+                    <h3>Total Engagement</h3>
+
+                    <h2>
+                        <?= number_format($totalEngagement) ?>
+                    </h2>
+
+                </div>
+
+
+            </section>
+
+
+            <!-- ======================================
              CHARTS
         ======================================= -->
 
-        <section class="charts-section">
+            <section class="charts-section">
 
 
-            <!-- PERFORMANCE CHART -->
+                <!-- PERFORMANCE CHART -->
 
-            <div class="chart-card">
+                <div class="chart-card">
 
-                <h3>Social Media Performance</h3>
+                    <h3>Social Media Performance</h3>
 
-                <div class="chart-container">
+                    <div class="chart-container">
 
-                    <canvas id="performanceChart"></canvas>
+                        <canvas id="performanceChart"></canvas>
 
-                </div>
-
-            </div>
-
-
-            <!-- PLATFORM CHART -->
-
-            <div class="chart-card">
-
-                <h3>Platform Comparison</h3>
-
-                <div class="chart-container">
-
-                    <canvas id="platformChart"></canvas>
+                    </div>
 
                 </div>
 
-            </div>
+
+                <!-- PLATFORM CHART -->
+
+                <div class="chart-card">
+
+                    <h3>Platform Comparison</h3>
+
+                    <div class="chart-container">
+
+                        <canvas id="platformChart"></canvas>
+
+                    </div>
+
+                </div>
 
 
-        </section>
+            </section>
 
 
-    </main>
+        </main>
 
-</div>
+    </div>
 
 
-<!-- ======================================
+    <!-- ======================================
      CHART.JS
 ====================================== -->
 
-<script>
+    <script>
+        // ==========================================
+        // PERFORMANCE BAR CHART
+        // ==========================================
 
-// ==========================================
-// PERFORMANCE BAR CHART
-// ==========================================
+        const performanceCanvas =
+            document.getElementById('performanceChart');
 
-const performanceCanvas =
-    document.getElementById('performanceChart');
+        new Chart(performanceCanvas, {
 
-new Chart(performanceCanvas, {
+            type: 'bar',
 
-    type: 'bar',
+            data: {
 
-    data: {
+                labels: [
+                    'Views',
+                    'Likes',
+                    'Comments',
+                    'Shares',
+                    'Reach'
+                ],
 
-        labels: [
-            'Views',
-            'Likes',
-            'Comments',
-            'Shares',
-            'Reach'
-        ],
+                datasets: [{
 
-        datasets: [{
+                    label: 'Social Media Metrics',
 
-            label: 'Social Media Metrics',
+                    data: [
 
-            data: [
+                        <?= (int) $analytics['total_views'] ?>,
 
-                <?= (int) $analytics['total_views'] ?>,
+                        <?= (int) $analytics['total_likes'] ?>,
 
-                <?= (int) $analytics['total_likes'] ?>,
+                        <?= (int) $analytics['total_comments'] ?>,
 
-                <?= (int) $analytics['total_comments'] ?>,
+                        <?= (int) $analytics['total_shares'] ?>,
 
-                <?= (int) $analytics['total_shares'] ?>,
+                        <?= (int) $analytics['total_reach'] ?>
 
-                <?= (int) $analytics['total_reach'] ?>
+                    ],
 
-            ],
+                    backgroundColor: [
+                        '#00e5ff',
+                        '#6366f1',
+                        '#a855f7',
+                        '#f59e0b',
+                        '#10b981'
+                    ],
 
-            backgroundColor: [
-                '#00e5ff',
-                '#6366f1',
-                '#a855f7',
-                '#f59e0b',
-                '#10b981'
-            ],
+                    borderRadius: 8
 
-            borderRadius: 8
+                }]
 
-        }]
+            },
 
-    },
+            options: {
 
-    options: {
+                responsive: true,
 
-        responsive: true,
+                maintainAspectRatio: false,
 
-        maintainAspectRatio: false,
+                plugins: {
 
-        plugins: {
+                    legend: {
+                        display: false
+                    }
 
-            legend: {
-                display: false
-            }
+                },
 
-        },
+                scales: {
 
-        scales: {
+                    y: {
 
-            y: {
+                        beginAtZero: true
 
-                beginAtZero: true
+                    }
 
-            }
-
-        }
-
-    }
-
-});
-
-
-// ==========================================
-// PLATFORM DOUGHNUT CHART
-// ==========================================
-
-const platformCanvas =
-    document.getElementById('platformChart');
-
-new Chart(platformCanvas, {
-
-    type: 'doughnut',
-
-    data: {
-
-        labels: <?= json_encode($platformLabels) ?>,
-
-        datasets: [{
-
-            data: <?= json_encode($platformViews) ?>,
-
-            backgroundColor: [
-                '#e1306c',
-                '#1877f2'
-            ],
-
-            borderWidth: 0
-
-        }]
-
-    },
-
-    options: {
-
-        responsive: true,
-
-        maintainAspectRatio: false,
-
-        plugins: {
-
-            legend: {
-
-                position: 'bottom'
+                }
 
             }
 
-        }
+        });
 
-    }
 
-});
+        // ==========================================
+        // PLATFORM DOUGHNUT CHART
+        // ==========================================
 
-</script>
+        const platformCanvas =
+            document.getElementById('platformChart');
+
+        new Chart(platformCanvas, {
+
+            type: 'doughnut',
+
+            data: {
+
+                labels: <?= json_encode($platformLabels) ?>,
+
+                datasets: [{
+
+                    data: <?= json_encode($platformViews) ?>,
+
+                    backgroundColor: [
+                        '#e1306c',
+                        '#1877f2'
+                    ],
+
+                    borderWidth: 0
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+
+                        position: 'bottom'
+
+                    }
+
+                }
+
+            }
+
+        });
+    </script>
 
 
 </body>
+
 </html>
