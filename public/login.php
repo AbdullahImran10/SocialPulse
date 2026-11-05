@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/audit.php';
 
 if (isset($_SESSION['user_id'])) {
     header('Location: dashboard.php');
@@ -16,19 +17,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    // Check that both fields are filled
+    // Check required fields
     if ($email === '' || $password === '') {
         $error = 'Please enter your email and password.';
     }
 
-    // Validate email format
+    // Validate email
     elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Please enter a valid email address.';
-    }
+    } else {
 
-    else {
-
-        // Find the user
+        // Find user
         $stmt = $pdo->prepare(
             "SELECT user_id, name, email, password_hash, status
              FROM users
@@ -39,14 +38,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
-        // Verify password and account status
+        // Verify credentials and account status
         if (
             $user &&
             $user['status'] === 'Active' &&
             password_verify($password, $user['password_hash'])
         ) {
 
-            // Get the user's role
+            // Get user's role
             $stmt = $pdo->prepare(
                 "SELECT r.role_name
                  FROM roles r
@@ -60,24 +59,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($role) {
 
-                // Regenerate session ID after login
+                // Regenerate session ID
                 session_regenerate_id(true);
 
-                // Store user information in the session
+                // Store user information
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['name'] = $user['name'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = $role['role_name'];
 
+                // Record successful login
+                logActivity(
+                    $pdo,
+                    $user['user_id'],
+                    'Login',
+                    'User logged in successfully.'
+                );
+
                 header('Location: dashboard.php');
                 exit;
-
             } else {
-                $error = 'Your account has no assigned role. Contact the administrator.';
-            }
 
+                $error = 'Your account has no assigned role. Contact the administrator.';
+
+                logActivity(
+                    $pdo,
+                    $user['user_id'],
+                    'Login Failed',
+                    'Login attempted but user has no assigned role.'
+                );
+            }
         } else {
+
             $error = 'Incorrect email or password.';
+
+            // Record failed login
+            logActivity(
+                $pdo,
+                $user ? $user['user_id'] : null,
+                'Login Failed',
+                'Invalid credentials or inactive account.'
+            );
         }
     }
 }
@@ -89,17 +111,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/login.css">
     <title>SocialPulse Login</title>
 </head>
 
 <body>
 
     <h1>SocialPulse Login</h1>
-
     <?php if ($error !== ''): ?>
-        <p style="color: red;">
+        <div class="error-message">
             <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
-        </p>
+        </div>
     <?php endif; ?>
 
     <form method="POST" action="login.php">
@@ -111,8 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             id="email"
             name="email"
             value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>"
-            required
-        >
+            required>
 
         <br><br>
 
@@ -122,8 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             type="password"
             id="password"
             name="password"
-            required
-        >
+            required>
 
         <br><br>
 

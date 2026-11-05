@@ -1,11 +1,26 @@
 <?php
 
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/audit.php';
 
-// Clear the session data
+// Get the current user ID before destroying the session
+$userId = getUserId();
+
+// Record logout activity
+if ($userId !== null) {
+    logActivity(
+        $pdo,
+        $userId,
+        'Logout',
+        'User logged out successfully.'
+    );
+}
+
+// Clear session data
 $_SESSION = [];
 
-// Remove the session cookie
+// Remove session cookie
 if (ini_get('session.use_cookies')) {
 
     $params = session_get_cookie_params();
@@ -21,7 +36,7 @@ if (ini_get('session.use_cookies')) {
     );
 }
 
-// Destroy the session
+// Destroy session
 session_destroy();
 
 header('Location: login.php');
