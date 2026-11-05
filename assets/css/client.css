@@ -1,0 +1,375 @@
+/* =========================
+   GLOBAL
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #070b14;
+    color: #e2e8f0;
+    min-height: 100vh;
+}
+
+.client-container {
+    max-width: 1400px;
+    margin: auto;
+    padding: 35px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.client-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 30px;
+    margin-bottom: 35px;
+    background: #0b1220;
+    border: 1px solid #1e293b;
+    border-radius: 14px;
+}
+
+.eyebrow {
+    color: #00e5ff;
+    font-size: 12px;
+    letter-spacing: 3px;
+    font-weight: bold;
+}
+
+.client-header h1 {
+    font-size: 30px;
+    margin: 12px 0;
+}
+
+.client-header p {
+    color: #94a3b8;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn-secondary,
+.btn-danger {
+    display: inline-block;
+    padding: 11px 17px;
+    border-radius: 7px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-secondary {
+    background: #0e2535;
+    color: #00e5ff;
+    border: 1px solid #164e63;
+}
+
+.btn-secondary:hover {
+    background: #164e63;
+}
+
+.btn-danger {
+    background: #35151d;
+    color: #fb7185;
+    border: 1px solid #7f1d1d;
+}
+
+.btn-danger:hover {
+    background: #7f1d1d;
+}
+
+/* =========================
+   SECTIONS
+========================= */
+
+.client-section {
+    margin-bottom: 35px;
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.section-heading h2 {
+    font-size: 21px;
+    margin-bottom: 7px;
+}
+
+.section-heading p {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.section-count {
+    color: #00e5ff;
+    background: #0e2535;
+    border: 1px solid #164e63;
+    padding: 8px 13px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+/* =========================
+   BRAND CARDS
+========================= */
+
+.brand-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.brand-card {
+    background: #0b1220;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 24px;
+    transition: 0.2s;
+}
+
+.brand-card:hover,
+.account-card:hover {
+    border-color: #00e5ff;
+    transform: translateY(-3px);
+}
+
+.brand-icon {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0e2535;
+    color: #00e5ff;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 18px;
+}
+
+.brand-card h3 {
+    font-size: 18px;
+    margin-bottom: 18px;
+}
+
+.brand-details {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* =========================
+   SOCIAL ACCOUNTS
+========================= */
+
+.account-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.account-card {
+    background: #0b1220;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 22px;
+    transition: 0.2s;
+}
+
+.account-platform {
+    display: inline-block;
+    color: #00e5ff;
+    background: #0e2535;
+    padding: 6px 11px;
+    border-radius: 5px;
+    font-size: 11px;
+    margin-bottom: 15px;
+}
+
+.account-card h3 {
+    font-size: 17px;
+    margin-bottom: 9px;
+}
+
+.account-card p {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background: #0b1220;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 750px;
+}
+
+thead {
+    background: #111c2e;
+}
+
+th {
+    color: #00e5ff;
+    font-size: 12px;
+    text-align: left;
+    padding: 16px;
+    white-space: nowrap;
+}
+
+td {
+    color: #cbd5e1;
+    font-size: 13px;
+    padding: 16px;
+    border-top: 1px solid #1e293b;
+}
+
+tbody tr:hover {
+    background: #111c2e;
+}
+
+/* =========================
+   REPORTS
+========================= */
+
+.report-list {
+    display: grid;
+    gap: 14px;
+}
+
+.report-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 22px;
+    background: #0b1220;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+}
+
+.report-card h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.report-card p {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-bottom: 7px;
+}
+
+.report-card small {
+    color: #64748b;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.empty-state {
+    padding: 30px;
+    text-align: center;
+    background: #0b1220;
+    border: 1px dashed #334155;
+    border-radius: 10px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* =========================
+   LINKS
+========================= */
+
+.text-link {
+    color: #00e5ff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.client-footer {
+    text-align: center;
+    padding: 25px 10px;
+    color: #475569;
+    font-size: 12px;
+    border-top: 1px solid #1e293b;
+    margin-top: 45px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+    .brand-grid,
+    .account-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .client-container {
+        padding: 18px;
+    }
+
+    .client-header {
+        padding: 22px;
+    }
+
+    .client-header h1 {
+        font-size: 24px;
+    }
+
+    .brand-grid,
+    .account-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .report-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

@@ -299,10 +299,7 @@ function escape($value)
 
                 <?php if ($userRole === 'Admin'): ?>
 
-                    <a href="admin/index.php">
-                        Admin Panel
-                    </a>
-
+                
                     <a href="admin/users.php">
                         Users
                     </a>
@@ -330,9 +327,6 @@ function escape($value)
 
                 <?php elseif ($userRole === 'Social Media Manager'): ?>
 
-                    <a href="manager/index.php">
-                        Manager Panel
-                    </a>
 
                     <a href="reports.php">
                         Reports
