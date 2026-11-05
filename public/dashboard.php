@@ -292,6 +292,7 @@ function escape($value)
                     <a href="metrics.php">
                         Analytics
                     </a>
+                     <a href="post_comparison.php">Post Comparison</a>
 
                 <?php endif; ?>
 
