@@ -325,6 +325,7 @@ function escape($value)
                     <a href="reports.php">
                         Reports
                     </a>
+                    <a href="admin/audit_logs.php">Audit Logs</a>
 
                 <?php elseif ($userRole === 'Social Media Manager'): ?>
 

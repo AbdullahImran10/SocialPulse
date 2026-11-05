@@ -1,0 +1,158 @@
+.audit-container {
+    padding: 35px;
+    color: #e2e8f0;
+}
+
+.audit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.audit-header h1 {
+    color: #00e5ff;
+    margin-bottom: 8px;
+}
+
+.audit-header p {
+    color: #94a3b8;
+}
+
+.audit-card,
+.audit-stat-card {
+    background: #0b1220;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.audit-stat-card {
+    max-width: 250px;
+}
+
+.audit-stat-card h3 {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.audit-stat-card p {
+    font-size: 28px;
+    font-weight: bold;
+    color: #00e5ff;
+    margin-top: 12px;
+}
+
+.audit-search {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.audit-search input {
+    flex: 1;
+    padding: 12px;
+    background: #070b14;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    color: #fff;
+}
+
+.audit-search button,
+.audit-search .reset-btn {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.audit-search button {
+    background: #00e5ff;
+    color: #070b14;
+}
+
+.audit-search .reset-btn {
+    background: #16263b;
+    color: #00e5ff;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.audit-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.audit-table th,
+.audit-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #1e293b;
+}
+
+.audit-table th {
+    color: #00e5ff;
+    background: #101b2c;
+}
+
+.audit-table td {
+    color: #cbd5e1;
+    font-size: 14px;
+}
+
+.action-badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 5px;
+    background: #16263b;
+    color: #00e5ff;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.empty-state {
+    text-align: center !important;
+    padding: 35px !important;
+    color: #94a3b8 !important;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 25px;
+}
+
+.pagination a {
+    color: #00e5ff;
+    text-decoration: none;
+    padding: 8px 14px;
+    background: #16263b;
+    border-radius: 5px;
+}
+
+.pagination span {
+    color: #94a3b8;
+}
+
+.back-dashboard-btn {
+    padding: 10px 16px;
+    background: #16263b;
+    border: 1px solid #00e5ff;
+    border-radius: 6px;
+    color: #00e5ff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.back-dashboard-btn:hover {
+    background: #00e5ff;
+    color: #070b14;
+}
