@@ -117,39 +117,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
 
-    <h1>SocialPulse Login</h1>
-    <?php if ($error !== ''): ?>
-        <div class="error-message">
-            <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+    <body>
+
+        <div class="login-container">
+
+            <h1>SocialPulse</h1>
+
+            <p class="login-subtitle">Sign in to your account</p>
+
+            <?php if ($error !== ''): ?>
+                <div class="error-message">
+                    <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" action="login.php">
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        required>
+                </div>
+
+                <button type="submit" class="login-btn">
+                    Login
+                </button>
+
+            </form>
+
         </div>
-    <?php endif; ?>
 
-    <form method="POST" action="login.php">
-
-        <label for="email">Email:</label>
-
-        <input
-            type="email"
-            id="email"
-            name="email"
-            value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>"
-            required>
-
-        <br><br>
-
-        <label for="password">Password:</label>
-
-        <input
-            type="password"
-            id="password"
-            name="password"
-            required>
-
-        <br><br>
-
-        <button type="submit">Login</button>
-
-    </form>
+    </body>
 
 </body>
 
