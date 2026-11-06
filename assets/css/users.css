@@ -333,3 +333,7 @@ footer {
         font-size: 25px;
     }
 }
+.field-help {
+    color: #64748b;
+    font-size: 11px;
+}
