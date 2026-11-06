@@ -53,85 +53,166 @@ $stmt = $pdo->query(
 );
 
 $clients = $stmt->fetchAll();
+$totalClients = count($clients);
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Client Management | SocialPulse</title>
+
+    <link rel="stylesheet" href="../../assets/css/clients.css">
 </head>
 
 <body>
 
-    <h1>Client Management</h1>
+<div class="page-container">
 
-    <a href="../dashboard.php">Back to Dashboard</a>
+    <!-- HEADER -->
+    <header class="page-header">
+        <div>
+            <h1>Client Management</h1>
+            <p>Create and manage clients registered on SocialPulse.</p>
+        </div>
 
-    <hr>
+        <a href="../dashboard.php" class="back-btn">
+            Back to Dashboard
+        </a>
+    </header>
 
-    <h2>Create Client</h2>
 
+    <!-- MESSAGES -->
     <?php if ($message !== ''): ?>
-        <p><?= htmlspecialchars($message) ?></p>
+        <div class="alert success">
+            <?= htmlspecialchars($message) ?>
+        </div>
     <?php endif; ?>
 
     <?php if ($error !== ''): ?>
-        <p><?= htmlspecialchars($error) ?></p>
+        <div class="alert error">
+            <?= htmlspecialchars($error) ?>
+        </div>
     <?php endif; ?>
 
-    <form method="POST">
 
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"
-        >
+    <!-- STATISTICS -->
+    <section class="stats-container">
 
-        <label for="client_name">Client Name:</label>
+        <div class="stat-card">
+            <span>Total Clients</span>
+            <h2><?= $totalClients ?></h2>
+        </div>
 
-        <input
-            type="text"
-            id="client_name"
-            name="client_name"
-            required
-        >
+    </section>
 
-        <button type="submit">Create Client</button>
 
-    </form>
+    <!-- CREATE CLIENT -->
+    <section class="content-card">
 
-    <hr>
+        <div class="section-header">
+            <h2>Create New Client</h2>
+            <p>Register a new client to manage their brands and social accounts.</p>
+        </div>
 
-    <h2>Registered Clients</h2>
+        <form method="POST" class="client-form">
 
-    <table border="1" cellpadding="10">
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"
+            >
 
-        <tr>
-            <th>ID</th>
-            <th>Client Name</th>
-            <th>Created At</th>
-        </tr>
+            <div class="form-group">
 
-        <?php foreach ($clients as $client): ?>
+                <label for="client_name">Client Name</label>
 
-            <tr>
+                <input
+                    type="text"
+                    id="client_name"
+                    name="client_name"
+                    maxlength="255"
+                    placeholder="Enter client name"
+                    required
+                >
 
-                <td><?= $client['client_id'] ?></td>
+            </div>
 
-                <td>
-                    <?= htmlspecialchars($client['client_name']) ?>
-                </td>
+            <button type="submit" class="submit-btn">
+                + Create Client
+            </button>
 
-                <td><?= $client['created_at'] ?></td>
+        </form>
 
-            </tr>
+    </section>
 
-        <?php endforeach; ?>
 
-    </table>
+    <!-- REGISTERED CLIENTS -->
+    <section class="content-card">
+
+        <div class="section-header">
+            <h2>Registered Clients</h2>
+            <p>All clients currently registered in SocialPulse.</p>
+        </div>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Client ID</th>
+                        <th>Client Name</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <?php if (count($clients) > 0): ?>
+
+                        <?php foreach ($clients as $client): ?>
+
+                            <tr>
+
+                                <td>
+                                    #<?= (int) $client['client_id'] ?>
+                                </td>
+
+                                <td class="client-name">
+                                    <?= htmlspecialchars($client['client_name']) ?>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($client['created_at']) ?>
+                                </td>
+
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                    <?php else: ?>
+
+                        <tr>
+                            <td colspan="3" class="empty-state">
+                                No clients have been registered yet.
+                            </td>
+                        </tr>
+
+                    <?php endif; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>
 
 </body>
 </html>
