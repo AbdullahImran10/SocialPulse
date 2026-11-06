@@ -277,6 +277,17 @@ $stmt = $pdo->query(
 );
 
 $users = $stmt->fetchAll();
+$totalUsers = count($users);
+$activeUsers = 0;
+$inactiveUsers = 0;
+
+foreach ($users as $user) {
+    if ($user['status'] === 'Active') {
+        $activeUsers++;
+    } else {
+        $inactiveUsers++;
+    }
+}
 
 ?>
 
@@ -284,296 +295,281 @@ $users = $stmt->fetchAll();
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>User Management | SocialPulse</title>
 
+    <link rel="stylesheet" href="../../assets/css/users.css">
 </head>
 
 <body>
 
-    <h1>User Management</h1>
+<div class="admin-container">
 
-    <a href="../dashboard.php">Back to Dashboard</a>
+    <!-- HEADER -->
+    <header class="page-header">
 
-    <hr>
+        <div>
+            <span class="eyebrow">SOCIALPULSE / ADMINISTRATION</span>
+            <h1>User Management</h1>
+            <p>Manage users, assign roles and control account access.</p>
+        </div>
+
+        <a href="../dashboard.php" class="back-btn">
+            ← Back to Dashboard
+        </a>
+
+    </header>
 
 
-    <!-- ================================= -->
-    <!-- MESSAGES -->
-    <!-- ================================= -->
-
+    <!-- NOTIFICATIONS -->
     <?php if ($message !== ''): ?>
-
-        <p>
+        <div class="alert success">
             <?= htmlspecialchars($message) ?>
-        </p>
-
+        </div>
     <?php endif; ?>
-
 
     <?php if ($error !== ''): ?>
-
-        <p>
+        <div class="alert error">
             <?= htmlspecialchars($error) ?>
-        </p>
-
+        </div>
     <?php endif; ?>
 
 
-    <!-- ================================= -->
-    <!-- CREATE USER FORM -->
-    <!-- ================================= -->
+    <!-- STATISTICS -->
+    <section class="stats-grid">
 
-    <h2>Create User</h2>
+        <div class="stat-card">
+            <span>Total Users</span>
+            <strong><?= $totalUsers ?></strong>
+        </div>
 
-    <form method="POST">
+        <div class="stat-card">
+            <span>Active Users</span>
+            <strong><?= $activeUsers ?></strong>
+        </div>
 
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"
-        >
+        <div class="stat-card">
+            <span>Inactive Users</span>
+            <strong><?= $inactiveUsers ?></strong>
+        </div>
 
-        <input
-            type="hidden"
-            name="action"
-            value="create_user"
-        >
-
-
-        <label for="name">Full Name:</label>
-
-        <input
-            type="text"
-            id="name"
-            name="name"
-            required
-        >
-
-        <br><br>
+    </section>
 
 
-        <label for="email">Email:</label>
+    <!-- CREATE USER -->
+    <section class="content-section">
 
-        <input
-            type="email"
-            id="email"
-            name="email"
-            required
-        >
+        <div class="section-heading">
+            <h2>Create New User</h2>
+            <p>Add a user and assign their platform role.</p>
+        </div>
 
-        <br><br>
+        <form method="POST" class="user-form">
 
+            <input type="hidden" name="csrf_token"
+                   value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
-        <label for="password">Password:</label>
+            <input type="hidden" name="action" value="create_user">
 
-        <input
-            type="password"
-            id="password"
-            name="password"
-            minlength="8"
-            required
-        >
+            <div class="form-grid">
 
-        <br><br>
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name"
+                           placeholder="Enter full name" required>
+                </div>
 
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email"
+                           placeholder="Enter email address" required>
+                </div>
 
-        <label for="role_id">Role:</label>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password"
+                           minlength="8" placeholder="Minimum 8 characters"
+                           required>
+                </div>
 
-        <select
-            name="role_id"
-            id="role_id"
-            required
-        >
+                <div class="form-group">
+                    <label for="role_id">User Role</label>
 
-            <option value="">Select Role</option>
+                    <select name="role_id" id="role_id" required>
+                        <option value="">Select Role</option>
 
-            <?php foreach ($roles as $role): ?>
+                        <?php foreach ($roles as $role): ?>
+                            <option value="<?= (int)$role['role_id'] ?>">
+                                <?= htmlspecialchars($role['role_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
 
-                <option value="<?= (int) $role['role_id'] ?>">
+                    </select>
+                </div>
 
-                    <?= htmlspecialchars($role['role_name']) ?>
+                <div class="form-group">
+                    <label for="client_id">Assign Client</label>
 
-                </option>
+                    <select name="client_id" id="client_id">
+                        <option value="">Select Client</option>
 
-            <?php endforeach; ?>
+                        <?php foreach ($clients as $client): ?>
+                            <option value="<?= (int)$client['client_id'] ?>">
+                                <?= htmlspecialchars($client['client_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
 
-        </select>
+                    </select>
+                </div>
 
-        <br><br>
+            </div>
 
+            <button type="submit" class="primary-btn">
+                + Create User
+            </button>
 
-        <label for="client_id">Assign Client:</label>
+        </form>
 
-        <select
-            name="client_id"
-            id="client_id"
-        >
-
-            <option value="">Select Client</option>
-
-            <?php foreach ($clients as $client): ?>
-
-                <option value="<?= (int) $client['client_id'] ?>">
-
-                    <?= htmlspecialchars($client['client_name']) ?>
-
-                </option>
-
-            <?php endforeach; ?>
-
-        </select>
-
-        <br><br>
-
-
-        <button type="submit">Create User</button>
-
-    </form>
+    </section>
 
 
-    <hr>
-
-
-    <!-- ================================= -->
     <!-- REGISTERED USERS -->
-    <!-- ================================= -->
+    <section class="content-section">
 
-    <h2>Registered Users</h2>
+        <div class="section-heading">
+            <h2>Registered Users</h2>
+            <p>View and manage all registered platform users.</p>
+        </div>
 
-    <table border="1" cellpadding="10">
+        <div class="table-wrapper">
 
-        <thead>
+            <table>
 
-            <tr>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Client</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
 
-                <th>ID</th>
+                <tbody>
 
-                <th>Name</th>
+                    <?php if ($users): ?>
 
-                <th>Email</th>
+                        <?php foreach ($users as $user): ?>
 
-                <th>Role</th>
+                            <tr>
 
-                <th>Client</th>
+                                <td>#<?= (int)$user['user_id'] ?></td>
 
-                <th>Status</th>
+                                <td class="user-name">
+                                    <?= htmlspecialchars($user['name']) ?>
+                                </td>
 
-                <th>Created At</th>
+                                <td>
+                                    <?= htmlspecialchars($user['email']) ?>
+                                </td>
 
-                <th>Action</th>
+                                <td>
+                                    <span class="role-badge">
+                                        <?= htmlspecialchars($user['role_name'] ?? 'No Role') ?>
+                                    </span>
+                                </td>
 
-            </tr>
+                                <td>
+                                    <?= htmlspecialchars($user['client_name'] ?? 'N/A') ?>
+                                </td>
 
-        </thead>
+                                <td>
+                                    <span class="status-badge <?= $user['status'] === 'Active' ? 'active' : 'inactive' ?>">
+                                        <?= htmlspecialchars($user['status']) ?>
+                                    </span>
+                                </td>
 
+                                <td>
+                                    <?= htmlspecialchars($user['created_at']) ?>
+                                </td>
 
-        <tbody>
+                                <td>
 
-            <?php foreach ($users as $user): ?>
+                                    <?php if ((int)$user['user_id'] !== (int)getUserId()): ?>
 
-                <tr>
+                                        <form method="POST" class="status-form">
 
-                    <td>
-                        <?= (int) $user['user_id'] ?>
-                    </td>
+                                            <input type="hidden" name="csrf_token"
+                                                   value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
-                    <td>
-                        <?= htmlspecialchars($user['name']) ?>
-                    </td>
+                                            <input type="hidden" name="action"
+                                                   value="change_status">
 
-                    <td>
-                        <?= htmlspecialchars($user['email']) ?>
-                    </td>
+                                            <input type="hidden" name="user_id"
+                                                   value="<?= (int)$user['user_id'] ?>">
 
-                    <td>
-                        <?= htmlspecialchars($user['role_name'] ?? 'No Role') ?>
-                    </td>
+                                            <?php if ($user['status'] === 'Active'): ?>
 
-                    <td>
-                        <?= htmlspecialchars($user['client_name'] ?? 'N/A') ?>
-                    </td>
+                                                <input type="hidden" name="status"
+                                                       value="Inactive">
 
-                    <td>
-                        <?= htmlspecialchars($user['status']) ?>
-                    </td>
+                                                <button type="submit" class="deactivate-btn">
+                                                    Deactivate
+                                                </button>
 
-                    <td>
-                        <?= htmlspecialchars($user['created_at']) ?>
-                    </td>
+                                            <?php else: ?>
 
-                    <td>
+                                                <input type="hidden" name="status"
+                                                       value="Active">
 
-                        <?php if ((int) $user['user_id'] !== (int) getUserId()): ?>
+                                                <button type="submit" class="activate-btn">
+                                                    Activate
+                                                </button>
 
-                            <form method="POST">
+                                            <?php endif; ?>
 
-                                <input
-                                    type="hidden"
-                                    name="csrf_token"
-                                    value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"
-                                >
+                                        </form>
 
-                                <input
-                                    type="hidden"
-                                    name="action"
-                                    value="change_status"
-                                >
+                                    <?php else: ?>
 
-                                <input
-                                    type="hidden"
-                                    name="user_id"
-                                    value="<?= (int) $user['user_id'] ?>"
-                                >
+                                        <span class="current-account">Current Account</span>
 
-                                <?php if ($user['status'] === 'Active'): ?>
+                                    <?php endif; ?>
 
-                                    <input
-                                        type="hidden"
-                                        name="status"
-                                        value="Inactive"
-                                    >
+                                </td>
 
-                                    <button type="submit">
-                                        Deactivate
-                                    </button>
+                            </tr>
 
-                                <?php else: ?>
+                        <?php endforeach; ?>
 
-                                    <input
-                                        type="hidden"
-                                        name="status"
-                                        value="Active"
-                                    >
+                    <?php else: ?>
 
-                                    <button type="submit">
-                                        Activate
-                                    </button>
+                        <tr>
+                            <td colspan="8" class="empty-message">
+                                No users found.
+                            </td>
+                        </tr>
 
-                                <?php endif; ?>
+                    <?php endif; ?>
 
-                            </form>
+                </tbody>
 
-                        <?php else: ?>
+            </table>
 
-                            Current Account
+        </div>
 
-                        <?php endif; ?>
+    </section>
 
-                    </td>
+    <footer>
+        SocialPulse Administration Panel
+    </footer>
 
-                </tr>
-
-            <?php endforeach; ?>
-
-        </tbody>
-
-    </table>
+</div>
 
 </body>
-
 </html>
