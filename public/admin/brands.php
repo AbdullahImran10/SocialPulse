@@ -142,6 +142,7 @@ $totalClients = count($clients);
     <title>Brand Management | SocialPulse</title>
 
     <link rel="stylesheet" href="../../assets/css/brands.css">
+    <link rel="stylesheet" href="../../assets/css/theme.css">
 </head>
 
 <body>

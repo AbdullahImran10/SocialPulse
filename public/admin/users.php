@@ -282,6 +282,7 @@ foreach ($users as $user) {
     <title>User Management | SocialPulse</title>
 
     <link rel="stylesheet" href="../../assets/css/users.css">
+    <link rel="stylesheet" href="../../assets/css/theme.css">
 </head>
 
 <body>

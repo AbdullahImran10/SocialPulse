@@ -66,6 +66,7 @@ $totalClients = count($clients);
     <title>Client Management | SocialPulse</title>
 
     <link rel="stylesheet" href="../../assets/css/clients.css">
+    <link rel="stylesheet" href="../../assets/css/theme.css">
 </head>
 
 <body>

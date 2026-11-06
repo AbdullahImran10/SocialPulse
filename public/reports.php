@@ -229,6 +229,7 @@ $reports = $reportStmt->fetchAll(PDO::FETCH_ASSOC);
 
     <link rel="stylesheet" href="../assets/css/dashboard.css">
     <link rel="stylesheet" href="../assets/css/reports.css">
+    <link rel="stylesheet" href="../assets/css/theme.css">
 </head>
 
 <body>

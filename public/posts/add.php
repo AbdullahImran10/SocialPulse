@@ -94,6 +94,7 @@ if (empty($_SESSION['csrf_token'])) {
     <title>Add Post | SocialPulse</title>
 
     <link rel="stylesheet" href="../../assets/css/add_post.css">
+    <link rel="stylesheet" href="../../assets/css/theme.css">
 </head>
 
 <body>

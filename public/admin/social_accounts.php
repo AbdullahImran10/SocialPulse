@@ -152,6 +152,7 @@ foreach ($accounts as $account) {
     <title>Social Accounts | SocialPulse</title>
 
     <link rel="stylesheet" href="../../assets/css/social_accounts.css">
+    <link rel="stylesheet" href="../../assets/css/theme.css">
 </head>
 
 <body>

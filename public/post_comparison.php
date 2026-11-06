@@ -254,6 +254,7 @@ if ($postA && $postB) {
     <link rel="stylesheet" href="../assets/css/dashboard.css">
 
     <link rel="stylesheet" href="../assets/css/post_comparison.css">
+    <link rel="stylesheet" href="../assets/css/theme.css">
 
 </head>
 

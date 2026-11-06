@@ -96,6 +96,7 @@ $recordedAt = date(
 
     <link rel="stylesheet" href="../../assets/css/dashboard.css">
     <link rel="stylesheet" href="../../assets/css/metrics.css">
+    <link rel="stylesheet" href="../../assets/css/theme.css">
 </head>
 
 <body>

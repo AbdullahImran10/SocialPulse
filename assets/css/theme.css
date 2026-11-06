@@ -1,0 +1,156 @@
+/* ==========================================================
+   SocialPulse NEON THEME  (load AFTER every other stylesheet)
+   Red / orange glow on near-black, matching the UI mockup.
+========================================================== */
+:root {
+    --bg: #07080c;
+    --bg-2: #0d0f16;
+    --panel: #10121b;
+    --red: #ff2b3a;
+    --orange: #ff8a1f;
+    --text: #f1f1f4;
+    --muted: #9a9cab;
+    --glow-red: 0 0 8px rgba(255, 43, 58, .55), 0 0 22px rgba(255, 43, 58, .25);
+    --glow-orange: 0 0 8px rgba(255, 138, 31, .55), 0 0 22px rgba(255, 138, 31, .25);
+    --grad: linear-gradient(90deg, var(--red), var(--orange));
+}
+
+body {
+    background:
+        radial-gradient(900px 500px at 80% -10%, rgba(255, 43, 58, .10), transparent 60%),
+        radial-gradient(700px 400px at 0% 100%, rgba(255, 138, 31, .08), transparent 60%),
+        var(--bg);
+    color: var(--text);
+    font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* ---------- gradient neon border helper (cards, inputs) ---------- */
+.analytics-card, .chart-card, .metrics-card, .login-container,
+.posts-table-container, .table-responsive, .filter-section, .live-feed {
+    background: linear-gradient(var(--panel), var(--panel)) padding-box,
+                var(--grad) border-box;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    box-shadow: 0 0 18px rgba(255, 43, 58, .18);
+}
+
+/* ---------- sidebar / logo ---------- */
+.sidebar {
+    background: var(--bg-2);
+    border-right: 1px solid rgba(255, 43, 58, .35);
+    box-shadow: 4px 0 24px rgba(255, 43, 58, .08);
+}
+.sidebar h2, .login-container h1 {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: none;
+    filter: drop-shadow(0 0 8px rgba(255, 43, 58, .6));
+}
+.sidebar nav a { color: var(--muted); border: 1px solid transparent; }
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background: rgba(255, 43, 58, .10);
+    color: #fff;
+    border-color: rgba(255, 138, 31, .6);
+    box-shadow: var(--glow-orange);
+}
+
+/* ---------- headings / topbar ---------- */
+.topbar h1, .section-heading, h1 { text-transform: uppercase; letter-spacing: 1px; }
+.topbar p, .login-subtitle, label { color: var(--muted); }
+.user-info span {
+    border: 1px solid var(--orange);
+    border-radius: 999px;
+    padding: 6px 14px;
+    color: var(--orange);
+    box-shadow: var(--glow-orange);
+}
+
+/* ---------- KPI cards ---------- */
+.analytics-card h3 { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+.analytics-card h2 { color: #fff; text-shadow: var(--glow-red); transition: color .3s, text-shadow .3s; }
+.analytics-card h2.bump { color: var(--orange); text-shadow: var(--glow-orange); }
+
+/* ---------- inputs: pill + glow ---------- */
+input, select, textarea {
+    background: #0a0b11 !important;
+    color: var(--text) !important;
+    border: 1px solid var(--orange) !important;
+    border-radius: 999px !important;
+    padding: 11px 18px !important;
+    outline: none;
+    transition: box-shadow .25s, border-color .25s;
+}
+textarea { border-radius: 16px !important; }
+input:focus, select:focus, textarea:focus {
+    border-color: var(--red) !important;
+    box-shadow: var(--glow-red);
+}
+input::placeholder { color: #6d6f7c; }
+
+/* ---------- buttons ---------- */
+button, .primary-btn, .login-btn, .edit-btn, .back-btn, .reset-btn,
+.date-filter a, form button[type=submit] {
+    background: linear-gradient(180deg, #3a0a10, #1b0508) !important;
+    color: #fff !important;
+    border: 1px solid var(--red) !important;
+    border-radius: 999px !important;
+    padding: 11px 22px;
+    cursor: pointer;
+    box-shadow: var(--glow-red);
+    transition: transform .15s, box-shadow .2s;
+}
+button:hover, .primary-btn:hover, .login-btn:hover, .edit-btn:hover,
+.back-btn:hover, .reset-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 14px var(--red), 0 0 34px rgba(255, 43, 58, .4);
+}
+.delete-btn { border: 1px solid #ff5a5a !important; border-radius: 999px !important; }
+
+/* ---------- tables ---------- */
+table { border-collapse: collapse; width: 100%; }
+th { color: var(--orange); text-transform: uppercase; font-size: 12px; letter-spacing: 1px; background: transparent !important; }
+td, th { border-bottom: 1px solid rgba(255, 138, 31, .18) !important; }
+tbody tr:hover { background: rgba(255, 43, 58, .07); }
+
+/* ---------- messages ---------- */
+.error-message { border: 1px solid var(--red); background: rgba(255, 43, 58, .1); color: #ff8b94; border-radius: 12px; padding: 10px 14px; }
+.success-message { border: 1px solid #2bd67b; background: rgba(43, 214, 123, .1); color: #7dffb8; border-radius: 12px; padding: 10px 14px; }
+
+/* ---------- login page ---------- */
+.login-container { max-width: 440px; }
+.login-container h1 { font-size: 34px; }
+
+/* ---------- LIVE indicator + feed ---------- */
+.live-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--red); border-radius: 999px;
+    padding: 6px 14px; font-size: 12px; color: #fff; margin-right: 10px;
+    box-shadow: var(--glow-red);
+}
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: pulse 1.4s infinite; }
+.live-pill.off .live-dot { background: #555; animation: none; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,43,58,.8);} 100% { box-shadow: 0 0 0 10px rgba(255,43,58,0);} }
+
+.live-feed { padding: 20px; margin-top: 24px; }
+.live-feed h3 { margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; font-size: 14px; color: var(--orange); }
+.live-feed ul { list-style: none; display: grid; gap: 10px; }
+.live-feed li {
+    display: flex; justify-content: space-between; gap: 12px; padding: 10px 14px;
+    border: 1px solid rgba(255, 138, 31, .35); border-radius: 12px; font-size: 13px;
+}
+.live-feed li.new { animation: flash 1.6s ease-out; }
+@keyframes flash { from { background: rgba(255, 43, 58, .35); } to { background: transparent; } }
+.live-feed small { color: var(--muted); }
+
+/* ---------- mobile ---------- */
+@media (max-width: 900px) {
+    .dashboard-container { flex-direction: column; }
+    .sidebar { width: 100%; min-width: 0; flex-direction: column; }
+    .sidebar nav { flex-direction: row; flex-wrap: wrap; }
+    .analytics-grid, .charts-section { grid-template-columns: 1fr !important; }
+}
