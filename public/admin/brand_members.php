@@ -183,6 +183,11 @@ $stmt = $pdo->query("
 
 $assignments = $stmt->fetchAll();
 
+// Statistics
+$totalAssignments = count($assignments);
+$totalUsers = count($users);
+$totalBrands = count($brands);
+
 function escape($value)
 {
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
@@ -196,136 +201,259 @@ function escape($value)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brand Assignments</title>
+
+    <title>Brand Assignments | SocialPulse</title>
+
+    <link rel="stylesheet" href="../../assets/css/brand_members.css">
 </head>
 
 <body>
 
-    <h1>Brand Assignments</h1>
+    <div class="page-container">
 
-    <p><a href="index.php">Back to Admin Dashboard</a></p>
+        <!-- Header -->
+        <header class="page-header">
 
-    <?php if ($message): ?>
-        <p><?= escape($message) ?></p>
-    <?php endif; ?>
+            <div>
+                <span class="page-label">ADMINISTRATION</span>
+                <h1>Brand Assignments</h1>
+                <p>Manage which brands are accessible to users.</p>
+            </div>
 
-    <?php if ($error): ?>
-        <p><?= escape($error) ?></p>
-    <?php endif; ?>
+            <a href="../dashboard.php" class="back-btn">
+                Back to Dashboard
+            </a>
 
-    <h2>Assign Brand to User</h2>
+        </header>
 
-    <form method="POST">
+        <!-- Alerts -->
+        <?php if ($message): ?>
+            <div class="alert success">
+                <?= escape($message) ?>
+            </div>
+        <?php endif; ?>
 
-        <input type="hidden" name="csrf_token"
-               value="<?= escape($_SESSION['csrf_token']) ?>">
+        <?php if ($error): ?>
+            <div class="alert error">
+                <?= escape($error) ?>
+            </div>
+        <?php endif; ?>
 
-        <input type="hidden" name="action" value="assign">
+        <!-- Statistics -->
+        <section class="stats-grid">
 
-        <label for="user_id">Select User:</label>
+            <div class="stat-card">
+                <span>Total Assignments</span>
+                <h2><?= $totalAssignments ?></h2>
+            </div>
 
-        <select name="user_id" id="user_id" required>
-            <option value="">Select User</option>
+            <div class="stat-card">
+                <span>Eligible Users</span>
+                <h2><?= $totalUsers ?></h2>
+            </div>
 
-            <?php foreach ($users as $user): ?>
-                <option value="<?= escape($user['user_id']) ?>">
-                    <?= escape($user['name']) ?>
-                    (<?= escape($user['role_name']) ?>)
-                </option>
-            <?php endforeach; ?>
+            <div class="stat-card">
+                <span>Available Brands</span>
+                <h2><?= $totalBrands ?></h2>
+            </div>
 
-        </select>
+        </section>
 
-        <br><br>
+        <!-- Assignment Form -->
+        <section class="content-card">
 
-        <label for="brand_id">Select Brand:</label>
+            <div class="section-heading">
+                <div>
+                    <h2>Assign Brand to User</h2>
+                    <p>Select a user and the brand they should access.</p>
+                </div>
+            </div>
 
-        <select name="brand_id" id="brand_id" required>
-            <option value="">Select Brand</option>
+            <form method="POST" class="assignment-form">
 
-            <?php foreach ($brands as $brand): ?>
-                <option value="<?= escape($brand['brand_id']) ?>">
-                    <?= escape($brand['brand_name']) ?>
-                    - <?= escape($brand['client_name']) ?>
-                </option>
-            <?php endforeach; ?>
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?= escape($_SESSION['csrf_token']) ?>"
+                >
 
-        </select>
+                <input type="hidden" name="action" value="assign">
 
-        <br><br>
+                <div class="form-group">
 
-        <button type="submit">Assign Brand</button>
+                    <label for="user_id">Select User</label>
 
-    </form>
+                    <select name="user_id" id="user_id" required>
 
-    <hr>
+                        <option value="">Choose a user</option>
 
-    <h2>Existing Assignments</h2>
+                        <?php foreach ($users as $user): ?>
 
-    <?php if (empty($assignments)): ?>
+                            <option value="<?= escape($user['user_id']) ?>">
+                                <?= escape($user['name']) ?>
+                                (<?= escape($user['role_name']) ?>)
+                            </option>
 
-        <p>No brand assignments found.</p>
+                        <?php endforeach; ?>
 
-    <?php else: ?>
+                    </select>
 
-        <table border="1" cellpadding="8">
+                </div>
 
-            <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Brand</th>
-                    <th>Client</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
+                <div class="form-group">
 
-            <tbody>
+                    <label for="brand_id">Select Brand</label>
 
-                <?php foreach ($assignments as $assignment): ?>
+                    <select name="brand_id" id="brand_id" required>
 
-                    <tr>
-                        <td><?= escape($assignment['user_name']) ?></td>
+                        <option value="">Choose a brand</option>
 
-                        <td><?= escape($assignment['email']) ?></td>
+                        <?php foreach ($brands as $brand): ?>
 
-                        <td><?= escape($assignment['role_name']) ?></td>
+                            <option value="<?= escape($brand['brand_id']) ?>">
+                                <?= escape($brand['brand_name']) ?>
+                                - <?= escape($brand['client_name']) ?>
+                            </option>
 
-                        <td><?= escape($assignment['brand_name']) ?></td>
+                        <?php endforeach; ?>
 
-                        <td><?= escape($assignment['client_name']) ?></td>
+                    </select>
 
-                        <td>
+                </div>
 
-                            <form method="POST"
-                                  onsubmit="return confirm('Remove this brand assignment?');">
+                <button type="submit" class="primary-btn">
+                    + Assign Brand
+                </button>
 
-                                <input type="hidden" name="csrf_token"
-                                       value="<?= escape($_SESSION['csrf_token']) ?>">
+            </form>
 
-                                <input type="hidden" name="action" value="remove">
+            <div class="form-note">
+                Clients can only access brands belonging to their own client account.
+                Social Media Managers can be assigned brands individually.
+            </div>
 
-                                <input type="hidden" name="user_id"
-                                       value="<?= escape($assignment['user_id']) ?>">
+        </section>
 
-                                <input type="hidden" name="brand_id"
-                                       value="<?= escape($assignment['brand_id']) ?>">
+        <!-- Existing Assignments -->
+        <section class="content-card">
 
-                                <button type="submit">Remove</button>
+            <div class="section-heading">
+                <div>
+                    <h2>Existing Assignments</h2>
+                    <p>View and manage current user-brand access.</p>
+                </div>
 
-                            </form>
+                <span class="count-badge">
+                    <?= $totalAssignments ?> Assignments
+                </span>
+            </div>
 
-                        </td>
-                    </tr>
+            <?php if (empty($assignments)): ?>
 
-                <?php endforeach; ?>
+                <div class="empty-state">
+                    <h3>No assignments found</h3>
+                    <p>Start by assigning a brand to a user above.</p>
+                </div>
 
-            </tbody>
+            <?php else: ?>
 
-        </table>
+                <div class="table-wrapper">
 
-    <?php endif; ?>
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Brand</th>
+                                <th>Client</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <?php foreach ($assignments as $assignment): ?>
+
+                                <tr>
+
+                                    <td class="user-name">
+                                        <?= escape($assignment['user_name']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= escape($assignment['email']) ?>
+                                    </td>
+
+                                    <td>
+                                        <span class="role-badge">
+                                            <?= escape($assignment['role_name']) ?>
+                                        </span>
+                                    </td>
+
+                                    <td class="brand-name">
+                                        <?= escape($assignment['brand_name']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= escape($assignment['client_name']) ?>
+                                    </td>
+
+                                    <td>
+
+                                        <form
+                                            method="POST"
+                                            onsubmit="return confirm('Remove this brand assignment?');"
+                                        >
+
+                                            <input
+                                                type="hidden"
+                                                name="csrf_token"
+                                                value="<?= escape($_SESSION['csrf_token']) ?>"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="action"
+                                                value="remove"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="user_id"
+                                                value="<?= escape($assignment['user_id']) ?>"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="brand_id"
+                                                value="<?= escape($assignment['brand_id']) ?>"
+                                            >
+
+                                            <button type="submit" class="remove-btn">
+                                                Remove
+                                            </button>
+
+                                        </form>
+
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            <?php endif; ?>
+
+        </section>
+
+    </div>
 
 </body>
 </html>

@@ -123,141 +123,204 @@ function escape($value)
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Edit Post | SocialPulse</title>
+
+    <link rel="stylesheet" href="../../assets/css/edit_post.css">
 </head>
 
 <body>
 
-    <h1>Edit Social Media Post</h1>
+    <div class="page-container">
 
-    <p>Update the post information below.</p>
+        <header class="page-header">
 
-    <form action="update.php" method="POST">
+            <div>
+                <span class="page-label">CONTENT MANAGEMENT</span>
+                <h1>Edit Social Media Post</h1>
+                <p>Update your post information and publishing details.</p>
+            </div>
 
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="<?= escape($_SESSION['csrf_token']) ?>">
+            <a href="../posts.php" class="back-btn">
+                Back to Posts
+            </a>
 
-        <input
-            type="hidden"
-            name="post_id"
-            value="<?= escape($post['post_id']) ?>">
+        </header>
 
-        <label>Brand:</label>
+        <section class="form-card">
 
-        <select name="brand_id" id="brandSelect" required>
+            <div class="form-heading">
+                <h2>Post Information</h2>
+                <p>Make changes to the selected post below.</p>
+            </div>
 
-            <option value="">Select Brand</option>
+            <form action="update.php" method="POST">
 
-            <?php
-            $displayedBrands = [];
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?= escape($_SESSION['csrf_token']) ?>"
+                >
 
-            foreach ($accounts as $account):
+                <input
+                    type="hidden"
+                    name="post_id"
+                    value="<?= escape($post['post_id']) ?>"
+                >
 
-                if (isset($displayedBrands[$account['brand_id']])) {
-                    continue;
-                }
+                <div class="form-grid">
 
-                $displayedBrands[$account['brand_id']] = true;
-            ?>
+                    <!-- Brand -->
+                    <div class="form-group">
 
-                <option
-                    value="<?= escape($account['brand_id']) ?>"
-                    <?= $account['brand_id'] == $post['brand_id'] ? 'selected' : '' ?>>
+                        <label for="brandSelect">Brand</label>
 
-                    <?= escape($account['brand_name']) ?>
+                        <select name="brand_id" id="brandSelect" required>
 
-                </option>
+                            <option value="">Select Brand</option>
 
-            <?php endforeach; ?>
+                            <?php
+                            $displayedBrands = [];
 
-        </select>
+                            foreach ($accounts as $account):
 
-        <br><br>
+                                if (isset($displayedBrands[$account['brand_id']])) {
+                                    continue;
+                                }
 
-        <label>Social Media Account:</label>
+                                $displayedBrands[$account['brand_id']] = true;
+                            ?>
 
-        <select name="account_id" id="accountSelect" required>
+                                <option
+                                    value="<?= escape($account['brand_id']) ?>"
+                                    <?= $account['brand_id'] == $post['brand_id'] ? 'selected' : '' ?>>
 
-            <?php foreach ($accounts as $account): ?>
+                                    <?= escape($account['brand_name']) ?>
 
-                <option
-                    value="<?= escape($account['account_id']) ?>"
-                    data-brand="<?= escape($account['brand_id']) ?>"
-                    <?= $account['account_id'] == $post['account_id'] ? 'selected' : '' ?>>
+                                </option>
 
-                    <?= escape(
-                        $account['brand_name'] . ' - ' .
-                        $account['platform'] . ' - ' .
-                        $account['account_name']
-                    ) ?>
+                            <?php endforeach; ?>
 
-                </option>
+                        </select>
 
-            <?php endforeach; ?>
+                    </div>
 
-        </select>
+                    <!-- Social Account -->
+                    <div class="form-group">
 
-        <br><br>
+                        <label for="accountSelect">Social Media Account</label>
 
-        <label>Caption:</label>
+                        <select name="account_id" id="accountSelect" required>
 
-        <textarea
-            name="caption"
-            rows="4"><?= escape($post['caption']) ?></textarea>
+                            <?php foreach ($accounts as $account): ?>
 
-        <br><br>
+                                <option
+                                    value="<?= escape($account['account_id']) ?>"
+                                    data-brand="<?= escape($account['brand_id']) ?>"
+                                    <?= $account['account_id'] == $post['account_id'] ? 'selected' : '' ?>>
 
-        <label>Post Type:</label>
+                                    <?= escape(
+                                        $account['brand_name'] . ' - ' .
+                                        $account['platform'] . ' - ' .
+                                        $account['account_name']
+                                    ) ?>
 
-        <select name="post_type" required>
+                                </option>
 
-            <?php
-            $types = ['Image', 'Video', 'Reel', 'Story', 'Carousel'];
+                            <?php endforeach; ?>
 
-            foreach ($types as $type):
-            ?>
+                        </select>
 
-                <option
-                    value="<?= escape($type) ?>"
-                    <?= $post['post_type'] === $type ? 'selected' : '' ?>>
+                    </div>
 
-                    <?= escape($type) ?>
+                    <!-- Post Type -->
+                    <div class="form-group">
 
-                </option>
+                        <label for="post_type">Post Type</label>
 
-            <?php endforeach; ?>
+                        <select name="post_type" id="post_type" required>
 
-        </select>
+                            <?php
+                            $types = ['Image', 'Video', 'Reel', 'Story', 'Carousel'];
 
-        <br><br>
+                            foreach ($types as $type):
+                            ?>
 
-        <label>Published Date:</label>
+                                <option
+                                    value="<?= escape($type) ?>"
+                                    <?= $post['post_type'] === $type ? 'selected' : '' ?>>
 
-        <input
-            type="datetime-local"
-            name="published_at"
-            value="<?= escape($publishedAt) ?>"
-            required>
+                                    <?= escape($type) ?>
 
-        <br><br>
+                                </option>
 
-        <label>Post URL:</label>
+                            <?php endforeach; ?>
 
-        <input
-            type="url"
-            name="post_url"
-            maxlength="500"
-            value="<?= escape($post['post_url'] ?? '') ?>"
-            placeholder="https://...">
+                        </select>
 
-        <br><br>
+                    </div>
 
-        <button type="submit">Update Post</button>
+                    <!-- Published Date -->
+                    <div class="form-group">
 
-        <a href="../posts.php">Cancel</a>
+                        <label for="published_at">Published Date</label>
 
-    </form>
+                        <input
+                            type="datetime-local"
+                            id="published_at"
+                            name="published_at"
+                            value="<?= escape($publishedAt) ?>"
+                            required
+                        >
+
+                    </div>
+
+                    <!-- Caption -->
+                    <div class="form-group full-width">
+
+                        <label for="caption">Caption</label>
+
+                        <textarea
+                            id="caption"
+                            name="caption"
+                            rows="5"
+                        ><?= escape($post['caption']) ?></textarea>
+
+                    </div>
+
+                    <!-- Post URL -->
+                    <div class="form-group full-width">
+
+                        <label for="post_url">Post URL</label>
+
+                        <input
+                            type="url"
+                            id="post_url"
+                            name="post_url"
+                            maxlength="500"
+                            value="<?= escape($post['post_url'] ?? '') ?>"
+                            placeholder="https://..."
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+
+                    <button type="submit" class="update-btn">
+                        Update Post
+                    </button>
+
+                    <a href="../posts.php" class="cancel-btn">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
 
     <script>
         const brandSelect = document.getElementById('brandSelect');
@@ -308,5 +371,4 @@ function escape($value)
     </script>
 
 </body>
-
 </html>
