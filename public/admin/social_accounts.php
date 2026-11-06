@@ -129,209 +129,246 @@ $stmt = $pdo->query(
 );
 
 $accounts = $stmt->fetchAll();
+$totalAccounts = count($accounts);
+$instagramAccounts = 0;
+$facebookAccounts = 0;
+
+foreach ($accounts as $account) {
+    if ($account['platform'] === 'Instagram') {
+        $instagramAccounts++;
+    } elseif ($account['platform'] === 'Facebook') {
+        $facebookAccounts++;
+    }
+}
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Social Account Management | SocialPulse</title>
+    <title>Social Accounts | SocialPulse</title>
 
+    <link rel="stylesheet" href="../../assets/css/social_accounts.css">
 </head>
 
 <body>
 
-    <h1>Social Account Management</h1>
+<div class="page-container">
 
-    <a href="../dashboard.php">Back to Dashboard</a>
+    <!-- HEADER -->
+    <header class="page-header">
+        <div>
+            <h1>Social Accounts</h1>
+            <p>Manage connected social media accounts across your clients.</p>
+        </div>
 
-    <hr>
+        <a href="../dashboard.php" class="back-btn">
+            Back to Dashboard
+        </a>
+    </header>
 
 
     <!-- MESSAGES -->
-
     <?php if ($message !== ''): ?>
-
-        <p><?= htmlspecialchars($message) ?></p>
-
+        <div class="alert success">
+            <?= htmlspecialchars($message) ?>
+        </div>
     <?php endif; ?>
-
 
     <?php if ($error !== ''): ?>
-
-        <p><?= htmlspecialchars($error) ?></p>
-
+        <div class="alert error">
+            <?= htmlspecialchars($error) ?>
+        </div>
     <?php endif; ?>
 
 
-    <!-- ADD SOCIAL ACCOUNT -->
+    <!-- STATISTICS -->
+    <section class="stats-container">
 
-    <h2>Add Social Account</h2>
+        <div class="stat-card">
+            <span>Total Accounts</span>
+            <h2><?= $totalAccounts ?></h2>
+        </div>
 
-    <form method="POST">
+        <div class="stat-card">
+            <span>Instagram Accounts</span>
+            <h2><?= $instagramAccounts ?></h2>
+        </div>
 
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"
-        >
+        <div class="stat-card">
+            <span>Facebook Accounts</span>
+            <h2><?= $facebookAccounts ?></h2>
+        </div>
 
-        <label for="brand_id">Select Brand:</label>
-
-        <select name="brand_id" id="brand_id" required>
-
-            <option value="">Select Brand</option>
-
-            <?php foreach ($brands as $brand): ?>
-
-                <option value="<?= (int) $brand['brand_id'] ?>">
-
-                    <?= htmlspecialchars($brand['brand_name']) ?>
-                    -
-                    <?= htmlspecialchars($brand['client_name']) ?>
-
-                </option>
-
-            <?php endforeach; ?>
-
-        </select>
-
-        <br><br>
+    </section>
 
 
-        <label for="platform">Platform:</label>
+    <!-- ADD ACCOUNT FORM -->
+    <section class="content-card">
 
-        <select name="platform" id="platform" required>
+        <div class="section-header">
+            <h2>Add Social Account</h2>
+            <p>Connect a social media account to an existing brand.</p>
+        </div>
 
-            <option value="">Select Platform</option>
+        <form method="POST" class="account-form">
 
-            <option value="Instagram">Instagram</option>
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"
+            >
 
-            <option value="Facebook">Facebook</option>
+            <div class="form-grid">
 
-        </select>
+                <div class="form-group">
+                    <label for="brand_id">Select Brand</label>
 
-        <br><br>
+                    <select name="brand_id" id="brand_id" required>
+                        <option value="">Select Brand</option>
 
+                        <?php foreach ($brands as $brand): ?>
+                            <option value="<?= (int) $brand['brand_id'] ?>">
+                                <?= htmlspecialchars($brand['brand_name']) ?>
+                                -
+                                <?= htmlspecialchars($brand['client_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
 
-        <label for="account_name">Account Name:</label>
-
-        <input
-            type="text"
-            name="account_name"
-            id="account_name"
-            required
-        >
-
-        <br><br>
-
-
-        <label for="platform_account_id">
-            Platform Account ID (Optional):
-        </label>
-
-        <input
-            type="text"
-            name="platform_account_id"
-            id="platform_account_id"
-        >
-
-        <br><br>
+                    </select>
+                </div>
 
 
-        <button type="submit">Add Account</button>
+                <div class="form-group">
+                    <label for="platform">Platform</label>
 
-    </form>
+                    <select name="platform" id="platform" required>
+                        <option value="">Select Platform</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="Facebook">Facebook</option>
+                    </select>
+                </div>
 
 
-    <hr>
+                <div class="form-group">
+                    <label for="account_name">Account Name</label>
+
+                    <input
+                        type="text"
+                        name="account_name"
+                        id="account_name"
+                        placeholder="e.g. @nike"
+                        maxlength="255"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="platform_account_id">
+                        Platform Account ID
+                        <span>(Optional)</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="platform_account_id"
+                        id="platform_account_id"
+                        placeholder="Enter platform account ID"
+                        maxlength="255"
+                    >
+                </div>
+
+            </div>
+
+            <button type="submit" class="submit-btn">
+                + Add Account
+            </button>
+
+        </form>
+
+    </section>
 
 
     <!-- REGISTERED ACCOUNTS -->
+    <section class="content-card">
 
-    <h2>Registered Social Accounts</h2>
+        <div class="section-header">
+            <h2>Registered Accounts</h2>
+            <p>All social media accounts registered in SocialPulse.</p>
+        </div>
 
-    <table border="1" cellpadding="10">
+        <div class="table-container">
 
-        <thead>
+            <table>
 
-            <tr>
-
-                <th>Account ID</th>
-
-                <th>Client</th>
-
-                <th>Brand</th>
-
-                <th>Platform</th>
-
-                <th>Account Name</th>
-
-                <th>Platform Account ID</th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody>
-
-            <?php if (count($accounts) > 0): ?>
-
-                <?php foreach ($accounts as $account): ?>
-
+                <thead>
                     <tr>
-
-                        <td>
-                            <?= (int) $account['account_id'] ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars($account['client_name']) ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars($account['brand_name']) ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars($account['platform']) ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars($account['account_name']) ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars($account['platform_account_id'] ?? 'N/A') ?>
-                        </td>
-
+                        <th>ID</th>
+                        <th>Client</th>
+                        <th>Brand</th>
+                        <th>Platform</th>
+                        <th>Account Name</th>
+                        <th>Platform Account ID</th>
                     </tr>
+                </thead>
 
-                <?php endforeach; ?>
+                <tbody>
 
-            <?php else: ?>
+                    <?php if (count($accounts) > 0): ?>
 
-                <tr>
+                        <?php foreach ($accounts as $account): ?>
 
-                    <td colspan="6">
-                        No social accounts have been added yet.
-                    </td>
+                            <tr>
+                                <td>#<?= (int) $account['account_id'] ?></td>
 
-                </tr>
+                                <td>
+                                    <?= htmlspecialchars($account['client_name']) ?>
+                                </td>
 
-            <?php endif; ?>
+                                <td>
+                                    <?= htmlspecialchars($account['brand_name']) ?>
+                                </td>
 
-        </tbody>
+                                <td>
+                                    <span class="platform-badge <?= strtolower($account['platform']) ?>">
+                                        <?= htmlspecialchars($account['platform']) ?>
+                                    </span>
+                                </td>
 
-    </table>
+                                <td>
+                                    <?= htmlspecialchars($account['account_name']) ?>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($account['platform_account_id'] ?? 'N/A') ?>
+                                </td>
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                    <?php else: ?>
+
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                No social accounts have been added yet.
+                            </td>
+                        </tr>
+
+                    <?php endif; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>
 
 </body>
-
 </html>
