@@ -128,176 +128,197 @@ $stmt = $pdo->query(
 );
 
 $brands = $stmt->fetchAll();
+$totalBrands = count($brands);
+$totalClients = count($clients);
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Brand Management | SocialPulse</title>
 
+    <link rel="stylesheet" href="../../assets/css/brands.css">
 </head>
 
 <body>
 
-    <h1>Brand Management</h1>
+<div class="page-container">
 
-    <a href="../dashboard.php">Back to Dashboard</a>
+    <!-- HEADER -->
+    <header class="page-header">
+        <div>
+            <h1>Brand Management</h1>
+            <p>Create and manage brands belonging to your clients.</p>
+        </div>
 
-    <hr>
+        <a href="../dashboard.php" class="back-btn">
+            Back to Dashboard
+        </a>
+    </header>
 
 
     <!-- MESSAGES -->
-
     <?php if ($message !== ''): ?>
-
-        <p>
+        <div class="alert success">
             <?= htmlspecialchars($message) ?>
-        </p>
-
+        </div>
     <?php endif; ?>
-
 
     <?php if ($error !== ''): ?>
-
-        <p>
+        <div class="alert error">
             <?= htmlspecialchars($error) ?>
-        </p>
-
+        </div>
     <?php endif; ?>
 
 
-    <!-- CREATE BRAND FORM -->
+    <!-- STATISTICS -->
+    <section class="stats-container">
 
-    <h2>Create Brand</h2>
+        <div class="stat-card">
+            <span>Total Brands</span>
+            <h2><?= $totalBrands ?></h2>
+        </div>
 
-    <form method="POST">
+        <div class="stat-card">
+            <span>Total Clients</span>
+            <h2><?= $totalClients ?></h2>
+        </div>
 
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"
-        >
-
-
-        <label for="brand_name">Brand Name:</label>
-
-        <input
-            type="text"
-            id="brand_name"
-            name="brand_name"
-            required
-        >
-
-        <br><br>
+    </section>
 
 
-        <label for="client_id">Select Client:</label>
+    <!-- CREATE BRAND -->
+    <section class="content-card">
 
-        <select
-            name="client_id"
-            id="client_id"
-            required
-        >
+        <div class="section-header">
+            <h2>Create New Brand</h2>
+            <p>Register a brand and associate it with a client.</p>
+        </div>
 
-            <option value="">Select Client</option>
+        <form method="POST" class="brand-form">
 
-            <?php foreach ($clients as $client): ?>
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>"
+            >
 
-                <option value="<?= (int) $client['client_id'] ?>">
+            <div class="form-grid">
 
-                    <?= htmlspecialchars($client['client_name']) ?>
+                <div class="form-group">
+                    <label for="brand_name">Brand Name</label>
 
-                </option>
-
-            <?php endforeach; ?>
-
-        </select>
-
-        <br><br>
-
-
-        <button type="submit">Create Brand</button>
-
-    </form>
+                    <input
+                        type="text"
+                        id="brand_name"
+                        name="brand_name"
+                        maxlength="255"
+                        placeholder="Enter brand name"
+                        required
+                    >
+                </div>
 
 
-    <hr>
+                <div class="form-group">
+                    <label for="client_id">Assign Client</label>
+
+                    <select
+                        name="client_id"
+                        id="client_id"
+                        required
+                    >
+                        <option value="">Select Client</option>
+
+                        <?php foreach ($clients as $client): ?>
+                            <option value="<?= (int) $client['client_id'] ?>">
+                                <?= htmlspecialchars($client['client_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+
+                    </select>
+                </div>
+
+            </div>
+
+            <button type="submit" class="submit-btn">
+                + Create Brand
+            </button>
+
+        </form>
+
+    </section>
 
 
     <!-- REGISTERED BRANDS -->
+    <section class="content-card">
 
-    <h2>Registered Brands</h2>
+        <div class="section-header">
+            <h2>Registered Brands</h2>
+            <p>All brands currently registered in SocialPulse.</p>
+        </div>
 
-    <table border="1" cellpadding="10">
+        <div class="table-container">
 
-        <thead>
+            <table>
 
-            <tr>
-
-                <th>Brand ID</th>
-
-                <th>Brand Name</th>
-
-                <th>Client Name</th>
-
-                <th>Created At</th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody>
-
-            <?php if (count($brands) > 0): ?>
-
-                <?php foreach ($brands as $brand): ?>
-
+                <thead>
                     <tr>
-
-                        <td>
-                            <?= (int) $brand['brand_id'] ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars($brand['brand_name']) ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars($brand['client_name']) ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars($brand['created_at']) ?>
-                        </td>
-
+                        <th>Brand ID</th>
+                        <th>Brand Name</th>
+                        <th>Client Name</th>
+                        <th>Created At</th>
                     </tr>
+                </thead>
 
-                <?php endforeach; ?>
+                <tbody>
 
-            <?php else: ?>
+                    <?php if (count($brands) > 0): ?>
 
-                <tr>
+                        <?php foreach ($brands as $brand): ?>
 
-                    <td colspan="4">
-                        No brands have been created yet.
-                    </td>
+                            <tr>
+                                <td>
+                                    #<?= (int) $brand['brand_id'] ?>
+                                </td>
 
-                </tr>
+                                <td class="brand-name">
+                                    <?= htmlspecialchars($brand['brand_name']) ?>
+                                </td>
 
-            <?php endif; ?>
+                                <td>
+                                    <?= htmlspecialchars($brand['client_name']) ?>
+                                </td>
 
-        </tbody>
+                                <td>
+                                    <?= htmlspecialchars($brand['created_at']) ?>
+                                </td>
+                            </tr>
 
-    </table>
+                        <?php endforeach; ?>
+
+                    <?php else: ?>
+
+                        <tr>
+                            <td colspan="4" class="empty-state">
+                                No brands have been created yet.
+                            </td>
+                        </tr>
+
+                    <?php endif; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>
 
 </body>
-
 </html>

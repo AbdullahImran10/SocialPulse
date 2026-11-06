@@ -173,12 +173,6 @@ function pageUrl($pageNumber)
 
                 <a href="dashboard.php">Dashboard</a>
 
-                <?php if ($userRole === 'Admin'): ?>
-
-                    <a href="admin/index.php">Admin Panel</a>
-
-                <?php endif; ?>
-
                 <?php if ($userRole === 'Social Media Manager'): ?>
 
                     <a href="manager/index.php">Manager Panel</a>
