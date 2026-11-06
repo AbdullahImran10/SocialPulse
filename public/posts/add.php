@@ -91,175 +91,271 @@ if (empty($_SESSION['csrf_token'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Add Social Media Post | SocialPulse</title>
+    <title>Add Post | SocialPulse</title>
+
+    <link rel="stylesheet" href="../../assets/css/add_post.css">
 </head>
 
 <body>
 
-    <h1>Add Social Media Post</h1>
-    <?php if (isset($_GET['success'])): ?>
+    <div class="page-container">
 
-        <p>Post and analytics saved successfully!</p>
+        <header class="page-header">
 
-    <?php endif; ?>
+            <div>
+                <span class="page-label">CONTENT MANAGEMENT</span>
+                <h1>Add Social Media Post</h1>
+                <p>Create a post record and enter its analytics.</p>
+            </div>
 
-    <p>Enter post information and its analytics below.</p>
+            <a href="../posts.php" class="back-btn">
+                Back to Posts
+            </a>
 
-    <?php if (empty($accounts)): ?>
+        </header>
 
-        <p>No social media accounts are available.</p>
+        <?php if (isset($_GET['success'])): ?>
+            <div class="alert success">
+                Post and analytics saved successfully!
+            </div>
+        <?php endif; ?>
 
-    <?php else: ?>
+        <?php if (empty($accounts)): ?>
 
-        <form action="process.php" method="POST">
+            <section class="form-card empty-state">
+                <h2>No Social Media Accounts</h2>
+                <p>There are no accessible social media accounts. Contact an administrator to add an account or assign one to you.</p>
+            </section>
 
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+        <?php else: ?>
 
-            <label>Brand:</label>
+            <form action="process.php" method="POST">
 
-            <select name="brand_id" required>
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>"
+                >
 
-                <option value="">Select Brand</option>
+                <!-- Post Information -->
+                <section class="form-card">
 
-                <?php foreach ($brands as $brand): ?>
+                    <div class="section-heading">
+                        <h2>Post Information</h2>
+                        <p>Enter the basic details of your social media post.</p>
+                    </div>
 
-                    <option value="<?= $brand['brand_id'] ?>">
-                        <?= htmlspecialchars($brand['brand_name']) ?>
-                    </option>
+                    <div class="form-grid">
 
-                <?php endforeach; ?>
+                        <div class="form-group">
 
-            </select>
+                            <label for="brandSelect">Brand</label>
 
-            <br><br>
+                            <select name="brand_id" id="brandSelect" required>
 
-            <label>Social Media Account:</label>
+                                <option value="">Select Brand</option>
 
-            <select name="account_id" required>
+                                <?php foreach ($brands as $brand): ?>
 
-                <option value="">Select Account</option>
+                                    <option value="<?= htmlspecialchars($brand['brand_id']) ?>">
+                                        <?= htmlspecialchars($brand['brand_name']) ?>
+                                    </option>
 
-                <?php foreach ($accounts as $account): ?>
+                                <?php endforeach; ?>
 
-                    <option
-                        value="<?= $account['account_id'] ?>"
-                        data-brand="<?= $account['brand_id'] ?>">
-                        <?= htmlspecialchars(
-                            $account['brand_name'] . ' - ' .
-                                $account['platform'] . ' - ' .
-                                $account['account_name']
-                        ) ?>
-                    </option>
+                            </select>
 
-                <?php endforeach; ?>
+                        </div>
 
-            </select>
+                        <div class="form-group">
 
-            <br><br>
+                            <label for="accountSelect">Social Media Account</label>
 
-            <label>Caption:</label>
+                            <select name="account_id" id="accountSelect" required>
 
-            <textarea
-                name="caption"
-                rows="4"
-                placeholder="Enter post caption"></textarea>
+                                <option value="">Select Account</option>
 
-            <br><br>
+                                <?php foreach ($accounts as $account): ?>
 
-            <label>Post Type:</label>
+                                    <option
+                                        value="<?= htmlspecialchars($account['account_id']) ?>"
+                                        data-brand="<?= htmlspecialchars($account['brand_id']) ?>">
 
-            <select name="post_type">
+                                        <?= htmlspecialchars(
+                                            $account['brand_name'] . ' - ' .
+                                            $account['platform'] . ' - ' .
+                                            $account['account_name']
+                                        ) ?>
 
-                <option value="Image">Image</option>
-                <option value="Video">Video</option>
-                <option value="Reel">Reel</option>
-                <option value="Story">Story</option>
-                <option value="Carousel">Carousel</option>
+                                    </option>
 
-            </select>
+                                <?php endforeach; ?>
 
-            <br><br>
+                            </select>
 
-            <label>Published Date:</label>
+                        </div>
 
-            <input
-                type="datetime-local"
-                name="published_at"
-                required>
+                        <div class="form-group">
 
-            <br><br>
+                            <label for="post_type">Post Type</label>
 
-            <label>Post URL:</label>
+                            <select name="post_type" id="post_type" required>
 
-            <input
-                type="url"
-                name="post_url"
-                maxlength="500"
-                placeholder="https://...">
+                                <option value="Image">Image</option>
+                                <option value="Video">Video</option>
+                                <option value="Reel">Reel</option>
+                                <option value="Story">Story</option>
+                                <option value="Carousel">Carousel</option>
 
-            <br><br>
+                            </select>
 
-            <h3>Post Analytics</h3>
+                        </div>
 
-            <label>Views:</label>
-            <input type="number" name="views" min="0" value="0" required>
+                        <div class="form-group">
 
-            <br><br>
+                            <label for="published_at">Published Date</label>
 
-            <label>Likes:</label>
-            <input type="number" name="likes" min="0" value="0" required>
+                            <input
+                                type="datetime-local"
+                                id="published_at"
+                                name="published_at"
+                                required
+                            >
 
-            <br><br>
+                        </div>
 
-            <label>Comments:</label>
-            <input type="number" name="comments" min="0" value="0" required>
+                        <div class="form-group full-width">
 
-            <br><br>
+                            <label for="caption">Caption</label>
 
-            <label>Shares:</label>
-            <input type="number" name="shares" min="0" value="0" required>
+                            <textarea
+                                name="caption"
+                                id="caption"
+                                rows="5"
+                                placeholder="Enter post caption..."
+                            ></textarea>
 
-            <br><br>
+                        </div>
 
-            <label>Reach:</label>
-            <input type="number" name="reach" min="0" value="0" required>
+                        <div class="form-group full-width">
 
-            <br><br>
+                            <label for="post_url">Post URL</label>
 
-            <button type="submit">Save Post</button>
+                            <input
+                                type="url"
+                                name="post_url"
+                                id="post_url"
+                                maxlength="500"
+                                placeholder="https://..."
+                            >
 
-        </form>
+                        </div>
 
-    <?php endif; ?>
+                    </div>
+
+                </section>
+
+                <!-- Analytics -->
+                <section class="form-card">
+
+                    <div class="section-heading">
+                        <h2>Post Analytics</h2>
+                        <p>Enter the performance metrics for this post.</p>
+                    </div>
+
+                    <div class="analytics-grid">
+
+                        <div class="form-group">
+                            <label for="views">Views</label>
+                            <input type="number" id="views" name="views" min="0" value="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="likes">Likes</label>
+                            <input type="number" id="likes" name="likes" min="0" value="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="comments">Comments</label>
+                            <input type="number" id="comments" name="comments" min="0" value="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="shares">Shares</label>
+                            <input type="number" id="shares" name="shares" min="0" value="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reach">Reach</label>
+                            <input type="number" id="reach" name="reach" min="0" value="0" required>
+                        </div>
+
+                    </div>
+
+                    <div class="form-actions">
+
+                        <button type="submit" class="save-btn">
+                            Save Post
+                        </button>
+
+                        <a href="../posts.php" class="cancel-btn">
+                            Cancel
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </form>
+
+        <?php endif; ?>
+
+    </div>
+
     <script>
-        const brandSelect = document.querySelector('[name="brand_id"]');
-        const accountSelect = document.querySelector('[name="account_id"]');
+        const brandSelect = document.getElementById('brandSelect');
+        const accountSelect = document.getElementById('accountSelect');
 
-        const allAccounts = Array.from(accountSelect.options);
+        if (brandSelect && accountSelect) {
 
-        brandSelect.addEventListener('change', function() {
+            const allAccounts = Array.from(accountSelect.options)
+                .filter(option => option.value !== '')
+                .map(option => ({
+                    value: option.value,
+                    text: option.textContent.trim(),
+                    brand: option.dataset.brand
+                }));
 
-            const selectedBrand = this.value;
+            function filterAccounts() {
 
-            accountSelect.innerHTML = '<option value="">Select Account</option>';
+                const selectedBrand = brandSelect.value;
 
-            allAccounts.forEach(option => {
+                accountSelect.innerHTML =
+                    '<option value="">Select Account</option>';
 
-                if (
-                    option.dataset.brand === selectedBrand &&
-                    option.value !== ''
-                ) {
-                    accountSelect.appendChild(option.cloneNode(true));
-                }
+                allAccounts.forEach(account => {
 
-            });
+                    if (account.brand === selectedBrand) {
 
-        });
+                        const option = document.createElement('option');
+
+                        option.value = account.value;
+                        option.textContent = account.text;
+
+                        accountSelect.appendChild(option);
+                    }
+
+                });
+
+                accountSelect.disabled = !selectedBrand ||
+                    accountSelect.options.length === 1;
+            }
+
+            brandSelect.addEventListener('change', filterAccounts);
+
+            filterAccounts();
+        }
     </script>
 
 </body>
-
 </html>
