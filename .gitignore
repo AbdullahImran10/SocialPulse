@@ -35,4 +35,4 @@ sessions/
 cache/
 tmp/
 
-*.csv
+*.csvconfig/database.php
