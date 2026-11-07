@@ -259,6 +259,7 @@ function escape($value)
     <title>SocialPulse Dashboard</title>
 
     <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/theme.css">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -376,6 +377,8 @@ function escape($value)
 
                 <div class="user-info">
 
+                    <span class="live-pill" id="livePill"><i class="live-dot"></i><b id="liveText">LIVE</b></span>
+
                     <span>
                         <?= escape($userRole) ?>
                     </span>
@@ -449,7 +452,7 @@ function escape($value)
 
                     <h3>Total Posts</h3>
 
-                    <h2>
+                    <h2 data-live="total_posts">
                         <?= number_format($analytics['total_posts']) ?>
                     </h2>
 
@@ -460,7 +463,7 @@ function escape($value)
 
                     <h3>Total Views</h3>
 
-                    <h2>
+                    <h2 data-live="total_views">
                         <?= number_format($analytics['total_views']) ?>
                     </h2>
 
@@ -471,7 +474,7 @@ function escape($value)
 
                     <h3>Total Reach</h3>
 
-                    <h2>
+                    <h2 data-live="total_reach">
                         <?= number_format($analytics['total_reach']) ?>
                     </h2>
 
@@ -482,7 +485,7 @@ function escape($value)
 
                     <h3>Total Likes</h3>
 
-                    <h2>
+                    <h2 data-live="total_likes">
                         <?= number_format($analytics['total_likes']) ?>
                     </h2>
 
@@ -493,7 +496,7 @@ function escape($value)
 
                     <h3>Total Comments</h3>
 
-                    <h2>
+                    <h2 data-live="total_comments">
                         <?= number_format($analytics['total_comments']) ?>
                     </h2>
 
@@ -504,7 +507,7 @@ function escape($value)
 
                     <h3>Total Shares</h3>
 
-                    <h2>
+                    <h2 data-live="total_shares">
                         <?= number_format($analytics['total_shares']) ?>
                     </h2>
 
@@ -515,7 +518,7 @@ function escape($value)
 
                     <h3>Total Engagement</h3>
 
-                    <h2>
+                    <h2 data-live="total_engagement">
                         <?= number_format($totalEngagement) ?>
                     </h2>
 
@@ -565,6 +568,13 @@ function escape($value)
             </section>
 
 
+        
+            <!-- LIVE ACTIVITY FEED -->
+            <section class="live-feed">
+                <h3>Live Activity</h3>
+                <ul id="liveFeedList"></ul>
+            </section>
+
         </main>
 
     </div>
@@ -579,10 +589,13 @@ function escape($value)
         // PERFORMANCE BAR CHART
         // ==========================================
 
+        Chart.defaults.color = '#9a9cab';
+        Chart.defaults.borderColor = 'rgba(255,138,31,.15)';
+
         const performanceCanvas =
             document.getElementById('performanceChart');
 
-        new Chart(performanceCanvas, {
+        window.performanceChart = new Chart(performanceCanvas, {
 
             type: 'bar',
 
@@ -615,11 +628,11 @@ function escape($value)
                     ],
 
                     backgroundColor: [
-                        '#00e5ff',
-                        '#6366f1',
-                        '#a855f7',
-                        '#f59e0b',
-                        '#10b981'
+                        '#ff2b3a',
+                        '#ff4d2e',
+                        '#ff6a21',
+                        '#ff8a1f',
+                        '#ffb347'
                     ],
 
                     borderRadius: 8
@@ -664,7 +677,7 @@ function escape($value)
         const platformCanvas =
             document.getElementById('platformChart');
 
-        new Chart(platformCanvas, {
+        window.platformChart = new Chart(platformCanvas, {
 
             type: 'doughnut',
 
@@ -677,8 +690,8 @@ function escape($value)
                     data: <?= json_encode($platformViews) ?>,
 
                     backgroundColor: [
-                        '#e1306c',
-                        '#1877f2'
+                        '#ff2b3a',
+                        '#ff8a1f'
                     ],
 
                     borderWidth: 0
@@ -708,6 +721,16 @@ function escape($value)
         });
     </script>
 
+
+
+    <script>
+        window.LIVE_CFG = {
+            start: <?= json_encode($startDate) ?>,
+            end: <?= json_encode($endDate) ?>,
+            interval: 5000
+        };
+    </script>
+    <script src="../assets/js/live.js"></script>
 
 </body>
 

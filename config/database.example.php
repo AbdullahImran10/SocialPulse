@@ -3,7 +3,7 @@
 $host = 'localhost';
 $dbname = 'socialpulse_db';
 $username = 'socialpulse';
-$password = 'social123';
+$password = 'YOUR_PASSWORD';
 
 $dsn = "mysql:host={$host};dbname={$dbname};charset=utf8mb4";
 

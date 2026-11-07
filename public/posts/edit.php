@@ -125,6 +125,7 @@ function escape($value)
     <title>Edit Post | SocialPulse</title>
 
     <link rel="stylesheet" href="../../assets/css/edit_post.css">
+    <link rel="stylesheet" href="../../assets/css/theme.css">
 </head>
 
 <body>

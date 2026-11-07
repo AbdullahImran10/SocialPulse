@@ -205,6 +205,7 @@ function escape($value)
     <title>Brand Assignments | SocialPulse</title>
 
     <link rel="stylesheet" href="../../assets/css/brand_members.css">
+    <link rel="stylesheet" href="../../assets/css/theme.css">
 </head>
 
 <body>

@@ -36,3 +36,4 @@ cache/
 tmp/
 
 *.csv
+config/database.php

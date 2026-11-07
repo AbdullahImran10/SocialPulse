@@ -128,6 +128,7 @@ $reports = $stmt->fetchAll();
     <title>My Workspace | SocialPulse</title>
 
     <link rel="stylesheet" href="../../assets/css/client.css">
+    <link rel="stylesheet" href="../../assets/css/theme.css">
 </head>
 
 <body>
