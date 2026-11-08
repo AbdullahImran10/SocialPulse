@@ -235,6 +235,10 @@ Automatic synchronization with Instagram and Facebook APIs is not yet implemente
 - Advanced analytics and performance insights
 - Additional social media platform integrations
 
+## Video Demo Link
+
+https://drive.google.com/file/d/13yWOAUgjnbIH1lCKSAweokw3H9wUCgbm/view?usp=drive_link
+
 ## Authors
 
 - **Ali Hassan**: neon theme, live dashboard and API endpoint
